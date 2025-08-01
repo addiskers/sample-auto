@@ -873,7 +873,6 @@ def generate_ppt():
             toc_data_levels[f"{x+2}.{i}. {name}"] = 1
 
         toc_data_levels[f"{x+3}. Conclusion & Recommendation"] = 0
-
         table_taxonomy = {
             f"BY {key.upper()}": list(value.keys()) for key, value in nested_dict.items()
         }
