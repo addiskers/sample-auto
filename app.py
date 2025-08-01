@@ -667,7 +667,7 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
     for i in toc_slide_indices:
         slide = prs.slides[i]
         table_shape = slide.shapes.add_table(
-            20, 2, Inches(3.1), Inches(0.3), Inches(10), Inches(6.8)
+            20, 2, Inches(3.1), Inches(0.3), Inches(10), Inches(6.5)
         )
         table = table_shape.table
         for row in table.rows:
@@ -698,9 +698,10 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
                 font.color.rgb, font.size, font.name = RGBColor(0, 0, 0), Pt(11), "Calibri"
                 if key.startswith("The following companies"):
                     font.size = Pt(9)
+                    font.color.rgb, font.bold = RGBColor(112, 48, 160), True
                 else:
                     font.size = Pt(11)
-                if level == 0:
+                if level == 0 and not key.startswith("The following companies"):
                     font.color.rgb, font.bold = RGBColor(112, 48, 160), True
                 else:
                     font.color.rgb = RGBColor(0, 0, 0)
@@ -883,7 +884,7 @@ def generate_ppt():
         toc_data_levels[f"{x+2}.1.3. Financial Overview"] = 2
         toc_data_levels[f"{x+2}.1.4. Key Developments"] = 2
 
-        toc_data_levels["The following companies are listed for indicative purposes only. Similar information will be provided for each, with detailed financial data available exclusively for publicly listed companies."] = 1
+        toc_data_levels["The following companies are listed for indicative purposes only. Similar information will be provided for each, with detailed financial data available exclusively for publicly listed companies."] = 0
 
         for i, name in enumerate(company_list[1:], start=2):
             toc_data_levels[f"{x+2}.{i}. {name}"] = 1
