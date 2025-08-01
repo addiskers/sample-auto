@@ -556,8 +556,8 @@ def parse_segment_input(segment_input: str) -> Dict[str, Dict]:
     return nested_dict
 
 
-def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, user_segment) -> Dict[str, int]:
-    """Generate Table of Contents data"""
+def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, user_segment: str, kmi_items: List[str] = None) -> Dict[str, int]:
+    """Generate Table of Contents data with dynamic KMI items"""
     toc_start_levels = {
         "1. Introduction": 0,
         "1.1. Objectives of the Study": 1,
@@ -584,21 +584,29 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
         "4.6.3. Bargaining power of buyers": 2,
         "4.6.4. Threat of new entrants": 2,
         "4.6.5. Bargaining power of suppliers": 2,
-        "5. Key Market Insights": 0,
-        "5.1. Key Success Factors": 1,
-        "5.2. Market Impacting Factors": 1,
-        "5.3. Top Investment Pockets": 1,
-        "5.4. Market Attractiveness Index": 1,
-        "5.5. Market Ecosystem ": 1,
-        "5.6. PESTEL Analysis": 1,
-        "5.7. Pricing Analysis": 1,
-        "5.8. Regulatory Landscape": 1,
-        "5.9. Case Study Analysis": 1,
-        "5.10. Supply Chain Analysis": 1,
-        "5.11. Raw Material Analysis": 1,
-        "5.12. Customer Buying Behaviour Analysis": 1,
     }
 
+    kmi_section = {"5. Key Market Insights": 0}
+
+    default_kmi_items = [
+        "Key Success Factors",
+        "Market Impacting Factors", 
+        "Top Investment Pockets",
+        "Market Attractiveness Index",
+        "Market Ecosystem",
+        "PESTEL Analysis",
+        "Pricing Analysis",
+        "Regulatory Landscape",
+        "Case Study Analysis",
+        "Value Chain Analysis"
+    ]
+
+    all_kmi_items = default_kmi_items.copy()
+    if kmi_items:
+        all_kmi_items.extend(kmi_items)
+
+    for i, kmi_item in enumerate(all_kmi_items, start=1):
+        kmi_section[f"5.{i}. {kmi_item}"] = 1
     toc_mid = {}
     main_index = 6
     for type_index, (type_name, points) in enumerate(nested_dict.items(), start=main_index):
@@ -651,7 +659,7 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
         f"{x+2}. Key Company Profiles": 0,
     }
     
-    return {**toc_start_levels, **toc_mid, **toc_end_levels}
+    return {**toc_start_levels, **kmi_section, **toc_mid, **toc_end_levels}
 
 
 def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_slide_indices: List[int]):
@@ -688,6 +696,10 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
                 para.text = "          " * level + key
                 font = para.font
                 font.color.rgb, font.size, font.name = RGBColor(0, 0, 0), Pt(11), "Calibri"
+                if key.startswith("The following companies"):
+                    font.size = Pt(9)
+                else:
+                    font.size = Pt(11)
                 if level == 0:
                     font.color.rgb, font.bold = RGBColor(112, 48, 160), True
                 else:
@@ -803,8 +815,12 @@ def generate_ppt():
         rev_future = form_data['rev_future']
         
         segment_input = form_data['segment_input']
+        kmi_items = []
+        kmi_input = form_data.get('kmi_items', '').strip()
         
-        # --- Data Processing and Content Generation ---
+        if kmi_input:
+            kmi_items = [item.strip() for item in kmi_input.split('\n') if item.strip()]
+        
         
         # Parse segment input
         nested_dict = parse_segment_input(segment_input)
@@ -829,7 +845,7 @@ def generate_ppt():
         context = "\n".join(output_lines)
 
         # Generate TOC
-        toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period,user_segment)
+        toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period,user_segment,kmi_items)
         
         # Generate AI content using unified service
         ai_context = {
@@ -867,7 +883,7 @@ def generate_ppt():
         toc_data_levels[f"{x+2}.1.3. Financial Overview"] = 2
         toc_data_levels[f"{x+2}.1.4. Key Developments"] = 2
 
-        toc_data_levels["*The following companies are listed for indicative purposes only. Similar information will be provided for each, with detailed financial data available exclusively for publicly listed companies.*"] = 1
+        toc_data_levels["The following companies are listed for indicative purposes only. Similar information will be provided for each, with detailed financial data available exclusively for publicly listed companies."] = 1
 
         for i, name in enumerate(company_list[1:], start=2):
             toc_data_levels[f"{x+2}.{i}. {name}"] = 1
