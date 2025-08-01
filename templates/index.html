@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PowerPoint Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #31097e;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .section-title {
+            color: #31097e;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        label {
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        label .required {
+            color: #e74c3c;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select,
+        textarea {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        textarea {
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .segment-info {
+            background: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            font-size: 0.85em;
+            color: #2c3e50;
+        }
+        
+        .segment-example {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            white-space: pre-line;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 50px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: block;
+            margin: 40px auto 0;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .submit-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-message {
+            display: none;
+            background: #27ae60;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .error-message {
+            display: none;
+            background: #e74c3c;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 PowerPoint Report Generator</h1>
+        
+        <form id="pptForm">
+            <div class="form-section">
+                <h2 class="section-title">Market Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="headline">Headline <span class="required">*</span></label>
+                        <input type="text" id="headline" name="headline" required>
+                        <span class="error" id="headline-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="headline_2">Short Headline <span class="required">*</span></label>
+                        <input type="text" id="headline_2" name="headline_2" required>
+                        <span class="error" id="headline_2-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="historical_year">Historical Year Range <span class="required">*</span></label>
+                        <input type="text" id="historical_year" name="historical_year" placeholder="e.g., 2010-2024" required>
+                        <span class="error" id="historical_year-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="base_year">Base Year <span class="required">*</span></label>
+                        <input type="text" id="base_year" name="base_year" placeholder="e.g., 2024" required>
+                        <span class="error" id="base_year-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="forecast_year">Forecast Year <span class="required">*</span></label>
+                        <input type="text" id="forecast_year" name="forecast_year" placeholder="e.g., 2030" required>
+                        <span class="error" id="forecast_year-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="forecast_period">Forecast Period <span class="required">*</span></label>
+                        <input type="text" id="forecast_period" name="forecast_period" placeholder="e.g., 2025-2030" required>
+                        <span class="error" id="forecast_period-error">This field is required</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Financial Information</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="cur">Currency <span class="required">*</span></label>
+                        <select id="cur" name="cur" required>
+                            <option value="">Select Currency</option>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                            <option value="INR">INR</option>
+                            <option value="CNY">CNY</option>
+                            <option value="JPY">JPY</option>
+                        </select>
+                        <span class="error" id="cur-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="value_in">Value Unit <span class="required">*</span></label>
+                        <select id="value_in" name="value_in" required>
+                            <option value="">Select Unit</option>
+                            <option value="Million">Million</option>
+                            <option value="Billion">Billion</option>
+                            <option value="Trillion">Trillion</option>
+                        </select>
+                        <span class="error" id="value_in-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="rev_current">Current Revenue <span class="required">*</span></label>
+                        <input type="number" id="rev_current" name="rev_current" required>
+                        <span class="error" id="rev_current-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="rev_future">Future Revenue <span class="required">*</span></label>
+                        <input type="number" id="rev_future" name="rev_future" required>
+                        <span class="error" id="rev_future-error">This field is required</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Key Organizations</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="org_1">Organization 1 <span class="required">*</span></label>
+                        <input type="text" id="org_1" name="org_1" required>
+                        <span class="error" id="org_1-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="org_2">Organization 2 <span class="required">*</span></label>
+                        <input type="text" id="org_2" name="org_2" required>
+                        <span class="error" id="org_2-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="org_3">Organization 3 <span class="required">*</span></label>
+                        <input type="text" id="org_3" name="org_3" required>
+                        <span class="error" id="org_3-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="org_4">Organization 4 <span class="required">*</span></label>
+                        <input type="text" id="org_4" name="org_4" required>
+                        <span class="error" id="org_4-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="org_5">Organization 5 <span class="required">*</span></label>
+                        <input type="text" id="org_5" name="org_5" required>
+                        <span class="error" id="org_5-error">This field is required</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Key Research Papers</h2>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="paper_1">Paper 1 <span class="required">*</span></label>
+                        <input type="text" id="paper_1" name="paper_1" required>
+                        <span class="error" id="paper_1-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="paper_2">Paper 2 <span class="required">*</span></label>
+                        <input type="text" id="paper_2" name="paper_2" required>
+                        <span class="error" id="paper_2-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="paper_3">Paper 3 <span class="required">*</span></label>
+                        <input type="text" id="paper_3" name="paper_3" required>
+                        <span class="error" id="paper_3-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="paper_4">Paper 4 <span class="required">*</span></label>
+                        <input type="text" id="paper_4" name="paper_4" required>
+                        <span class="error" id="paper_4-error">This field is required</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="paper_5">Paper 5 <span class="required">*</span></label>
+                        <input type="text" id="paper_5" name="paper_5" required>
+                        <span class="error" id="paper_5-error">This field is required</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h2 class="section-title">Market Segmentation</h2>
+                <div class="segment-info">
+                    <strong>📋 Formatting Rules:</strong>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Supports up to 6 hierarchical levels</li>
+                        <li>Start with main categories (1., 2., 3., etc.)</li>
+                        <li>Add subcategories with proper numbering (1.1., 1.2., 2.1., etc.)</li>
+                        <li>Continue with deeper levels (1.2.1., 1.2.1.1., etc.)</li>
+                        <li>Each level must follow the previous one correctly</li>
+                    </ul>
+                    <div class="segment-example">Example:
+1. Type_1
+1.1. Point_1.1
+1.2. Point_1.2
+1.2.1. Sub_point_1.2.1
+1.2.1.1. Deep_point_1.2.1.1
+1.2.1.1.1. Deeper_point_1.2.1.1.1
+1.2.1.1.1.1. Deepest_point_1.2.1.1.1.1
+2. Type_2
+2.1. Point_2.1</div>
+                </div>
+                <div class="form-group">
+                    <label for="segment_input">Segment Structure <span class="required">*</span></label>
+                    <textarea id="segment_input" name="segment_input" required></textarea>
+                    <span class="error" id="segment_input-error">This field is required</span>
+                    <span class="error" id="segment_validation-error"></span>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">Generate PowerPoint Report</button>
+            
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Generating your report... This may take a few minutes.</p>
+            </div>
+            
+            <div class="success-message">
+                ✅ Report generated successfully! <a href="#" id="downloadLink" style="color: white; text-decoration: underline;">Download here</a>
+            </div>
+            
+            <div class="error-message">
+                ❌ <span id="errorText">An error occurred. Please try again.</span>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function validateSegmentHierarchy(segmentText) {
+            const lines = segmentText.trim().split('\n');
+            const errors = [];
+            const lastNumbers = {};
+
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+
+                const match = line.match(/^(\d+(?:\.\d+)*)\.\s+(.+)$/);
+                if (!match) {
+                    errors.push(`Line ${i + 1}: Invalid format. Expected "1. Name" or "1.1. Name"`);
+                    continue;
+                }
+
+                const numberParts = match[1].split('.').map(n => parseInt(n));
+                const depth = numberParts.length;
+
+                if (depth > 6) {
+                    errors.push(`Line ${i + 1}: Maximum depth is 6 levels`);
+                    continue;
+                }
+
+                const parentKey = numberParts.slice(0, -1).join('.') || '';
+                const currentNum = numberParts[numberParts.length - 1];
+                
+                const expectedNum = (lastNumbers[parentKey] || 0) + 1;
+                if (currentNum !== expectedNum) {
+                    if (parentKey) {
+                        errors.push(`Line ${i + 1}: Expected ${parentKey}.${expectedNum}, got ${match[1]}`);
+                    } else {
+                        errors.push(`Line ${i + 1}: Expected ${expectedNum}, got ${currentNum}`);
+                    }
+                }
+                
+                lastNumbers[parentKey] = currentNum;
+                
+                for (const key in lastNumbers) {
+                    if (key.startsWith(match[1] + '.')) {
+                        delete lastNumbers[key];
+                    }
+                }
+            }
+
+            return errors;
+        }
+
+        document.getElementById('pptForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            document.querySelectorAll('.error').forEach(err => err.style.display = 'none');
+            document.querySelector('.error-message').style.display = 'none';
+            document.querySelector('.success-message').style.display = 'none';
+            
+            let isValid = true;
+            const requiredFields = this.querySelectorAll('[required]');
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    document.getElementById(field.id + '-error').style.display = 'block';
+                    isValid = false;
+                }
+            });
+            
+            const segmentInput = document.getElementById('segment_input').value;
+            const segmentErrors = validateSegmentHierarchy(segmentInput);
+            
+            if (segmentErrors.length > 0) {
+                const errorElement = document.getElementById('segment_validation-error');
+                errorElement.textContent = 'Hierarchy errors: ' + segmentErrors.join('; ');
+                errorElement.style.display = 'block';
+                isValid = false;
+            }
+            
+            if (!isValid) {
+                return;
+            }
+            
+            document.querySelector('.submit-btn').disabled = true;
+            document.querySelector('.loading').style.display = 'block';
+            
+            const formData = new FormData(this);
+            
+            try {
+                const response = await fetch('/generate-ppt', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    document.querySelector('.success-message').style.display = 'block';
+                    document.getElementById('downloadLink').href = `/download/${result.filename}`;
+                } else {
+                    const error = await response.json();
+                    throw new Error(error.message || 'Failed to generate report');
+                }
+            } catch (error) {
+                document.querySelector('.error-message').style.display = 'block';
+                document.getElementById('errorText').textContent = error.message;
+            } finally {
+                document.querySelector('.submit-btn').disabled = false;
+                document.querySelector('.loading').style.display = 'none';
+            }
+        });
+        
+        document.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
+            field.addEventListener('blur', function() {
+                const errorElement = document.getElementById(this.id + '-error');
+                if (!this.value.trim()) {
+                    errorElement.style.display = 'block';
+                } else {
+                    errorElement.style.display = 'none';
+                }
+            });
+        });
+        
+        document.getElementById('segment_input').addEventListener('input', function() {
+            const errors = validateSegmentHierarchy(this.value);
+            const errorElement = document.getElementById('segment_validation-error');
+            
+            if (errors.length > 0) {
+                errorElement.textContent = 'Hierarchy errors: ' + errors.join('; ');
+                errorElement.style.display = 'block';
+            } else {
+                errorElement.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
