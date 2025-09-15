@@ -845,8 +845,8 @@ def generate_ppt():
             }), 400
         
         # Extract form data
-        headline = form_data['headline'].upper()
-        headline_2 = headline
+        headline = form_data['headline']
+        headline_2 = headline.upper()
         historical_year = "2019-2023"
         base_year = "2024"
         forecast_year = "2032"
@@ -952,7 +952,7 @@ def generate_ppt():
         # --- Slide Data Dictionary ---
         slide_data = {
             0: {
-                "heading": headline,
+                "heading": headline_2,
                 "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
                 "context": context,
             },
