@@ -19,7 +19,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 800px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
@@ -59,6 +59,10 @@
             flex-direction: column;
         }
         
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
         label {
             color: #333;
             font-weight: 500;
@@ -74,9 +78,9 @@
         input[type="number"],
         select,
         textarea {
-            padding: 10px;
+            padding: 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 1em;
             transition: border-color 0.3s;
         }
@@ -93,25 +97,65 @@
             min-height: 200px;
             font-family: 'Courier New', monospace;
             font-size: 0.9em;
+            resize: vertical;
+        }
+        
+        textarea.companies-input {
+            min-height: 150px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         .segment-info {
             background: #e8f4f8;
             padding: 15px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
             font-size: 0.85em;
             color: #2c3e50;
         }
         
         .segment-example {
             background: #f0f0f0;
-            padding: 10px;
+            padding: 12px;
             border-radius: 5px;
             margin-top: 10px;
             font-family: 'Courier New', monospace;
             font-size: 0.85em;
             white-space: pre-line;
+        }
+        
+        .companies-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85em;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+        
+        .companies-example {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.85em;
+            white-space: pre-line;
+        }
+        
+        .ai-notice {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            color: #2d5a2d;
+            border-left: 4px solid #27ae60;
+        }
+        
+        .ai-notice strong {
+            color: #1e7e34;
         }
         
         .error {
@@ -186,45 +230,67 @@
             text-align: center;
             margin-top: 20px;
         }
+        
+        .info-card {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-card h3 {
+            color: #495057;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .info-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .info-list li {
+            padding: 5px 0;
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+        
+        .info-list li::before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📊 PowerPoint Report Generator</h1>
         
+        <div class="ai-notice">
+            <strong>🤖 AI-Powered Generation:</strong> Research journals and industry associations will be automatically generated based on your market headline. No need to input them manually!
+        </div>
+        
+        <div class="info-card">
+            <h3>📋 What's Automatically Set:</h3>
+            <ul class="info-list">
+                <li>Historical Period: 2019-2023</li>
+                <li>Base Year: 2024</li>
+                <li>Forecast Period: 2025-2032</li>
+                <li>Currency: USD</li>
+                <li>Research Journals (5 relevant papers)</li>
+                <li>Industry Associations (5 relevant organizations)</li>
+            </ul>
+        </div>
+        
         <form id="pptForm">
             <div class="form-section">
                 <h2 class="section-title">Market Information</h2>
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label for="headline">Headline <span class="required">*</span></label>
-                        <input type="text" id="headline" name="headline" required>
+                    <div class="form-group full-width">
+                        <label for="headline">Market Headline <span class="required">*</span></label>
+                        <input type="text" id="headline" name="headline" placeholder="e.g., Artificial Intelligence Market" required>
                         <span class="error" id="headline-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="headline_2">Short Headline <span class="required">*</span></label>
-                        <input type="text" id="headline_2" name="headline_2" required>
-                        <span class="error" id="headline_2-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="historical_year">Historical Year Range <span class="required">*</span></label>
-                        <input type="text" id="historical_year" name="historical_year" placeholder="e.g., 2010-2024" required>
-                        <span class="error" id="historical_year-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="base_year">Base Year <span class="required">*</span></label>
-                        <input type="text" id="base_year" name="base_year" placeholder="e.g., 2024" required>
-                        <span class="error" id="base_year-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="forecast_year">Forecast Year <span class="required">*</span></label>
-                        <input type="text" id="forecast_year" name="forecast_year" placeholder="e.g., 2030" required>
-                        <span class="error" id="forecast_year-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="forecast_period">Forecast Period <span class="required">*</span></label>
-                        <input type="text" id="forecast_period" name="forecast_period" placeholder="e.g., 2025-2030" required>
-                        <span class="error" id="forecast_period-error">This field is required</span>
                     </div>
                 </div>
             </div>
@@ -233,104 +299,48 @@
                 <h2 class="section-title">Financial Information</h2>
                 <div class="form-grid">
                     <div class="form-group">
-                        <label for="cur">Currency <span class="required">*</span></label>
-                        <select id="cur" name="cur" required>
-                            <option value="">Select Currency</option>
-                            <option value="USD">USD</option>
-                            <option value="EUR">EUR</option>
-                            <option value="GBP">GBP</option>
-                            <option value="INR">INR</option>
-                            <option value="CNY">CNY</option>
-                            <option value="JPY">JPY</option>
-                        </select>
-                        <span class="error" id="cur-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
                         <label for="value_in">Value Unit <span class="required">*</span></label>
                         <select id="value_in" name="value_in" required>
                             <option value="">Select Unit</option>
-                            <option value="Million">Million</option>
-                            <option value="Billion">Billion</option>
-                            <option value="Trillion">Trillion</option>
+                            <option value="Million">MILLION</option>
+                            <option value="Billion">BILLION</option>
+                            <option value="Trillion">TRILLION</option>
                         </select>
                         <span class="error" id="value_in-error">This field is required</span>
                     </div>
                     <div class="form-group">
-                        <label for="rev_current">Current Revenue <span class="required">*</span></label>
-                        <input type="number" id="rev_current" name="rev_current" required>
+                        <label for="rev_current">Current Market Size (2024) <span class="required">*</span></label>
+                        <input type="number" id="rev_current" name="rev_current" placeholder="e.g., 150" step="0.1" required>
                         <span class="error" id="rev_current-error">This field is required</span>
                     </div>
                     <div class="form-group">
-                        <label for="rev_future">Future Revenue <span class="required">*</span></label>
-                        <input type="number" id="rev_future" name="rev_future" required>
+                        <label for="rev_future">Future Market Size (2032) <span class="required">*</span></label>
+                        <input type="number" id="rev_future" name="rev_future" placeholder="e.g., 500" step="0.1" required>
                         <span class="error" id="rev_future-error">This field is required</span>
                     </div>
-                    <div class="form-group">
-                        <label for="kmi_items">Key Market Insights (KMI)</label>
-                        <textarea id="kmi_items" name="kmi_items" placeholder="Enter each KMI on a new line" ></textarea>
+                    <div class="form-group full-width">
+                        <label for="kmi_items">Additional Key Market Insights (Optional)</label>
+                        <textarea id="kmi_items" name="kmi_items" placeholder="Enter each additional KMI on a new line&#10;e.g.:&#10;Emerging Market Trends&#10;Technological Disruptions&#10;Regulatory Changes"></textarea>
                     </div>
                 </div>
             </div>
 
             <div class="form-section">
-                <h2 class="section-title">Key Organizations</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="org_1">Organization 1 <span class="required">*</span></label>
-                        <input type="text" id="org_1" name="org_1" required>
-                        <span class="error" id="org_1-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="org_2">Organization 2 <span class="required">*</span></label>
-                        <input type="text" id="org_2" name="org_2" required>
-                        <span class="error" id="org_2-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="org_3">Organization 3 <span class="required">*</span></label>
-                        <input type="text" id="org_3" name="org_3" required>
-                        <span class="error" id="org_3-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="org_4">Organization 4 <span class="required">*</span></label>
-                        <input type="text" id="org_4" name="org_4" required>
-                        <span class="error" id="org_4-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="org_5">Organization 5 <span class="required">*</span></label>
-                        <input type="text" id="org_5" name="org_5" required>
-                        <span class="error" id="org_5-error">This field is required</span>
-                    </div>
+                <h2 class="section-title">Companies Analysis</h2>
+                <div class="companies-info">
+                    <strong>📈 Company Information:</strong>
+                    Enter the companies you want to analyze in the report. These will be included in the competitive analysis and company profiles sections.
+                    <div class="companies-example">Example:
+Apple Inc.
+Microsoft Corporation
+Google LLC
+Amazon.com Inc.
+Tesla Inc.</div>
                 </div>
-            </div>
-
-            <div class="form-section">
-                <h2 class="section-title">Key Research Papers</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="paper_1">Paper 1 <span class="required">*</span></label>
-                        <input type="text" id="paper_1" name="paper_1" required>
-                        <span class="error" id="paper_1-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="paper_2">Paper 2 <span class="required">*</span></label>
-                        <input type="text" id="paper_2" name="paper_2" required>
-                        <span class="error" id="paper_2-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="paper_3">Paper 3 <span class="required">*</span></label>
-                        <input type="text" id="paper_3" name="paper_3" required>
-                        <span class="error" id="paper_3-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="paper_4">Paper 4 <span class="required">*</span></label>
-                        <input type="text" id="paper_4" name="paper_4" required>
-                        <span class="error" id="paper_4-error">This field is required</span>
-                    </div>
-                    <div class="form-group">
-                        <label for="paper_5">Paper 5 <span class="required">*</span></label>
-                        <input type="text" id="paper_5" name="paper_5" required>
-                        <span class="error" id="paper_5-error">This field is required</span>
-                    </div>
+                <div class="form-group">
+                    <label for="companies">Companies to Analyze <span class="required">*</span></label>
+                    <textarea id="companies" name="companies" class="companies-input" placeholder="Enter company names, one per line..." required></textarea>
+                    <span class="error" id="companies-error">At least one company must be provided</span>
                 </div>
             </div>
 
@@ -346,25 +356,33 @@
                         <li>Each level must follow the previous one correctly</li>
                     </ul>
                     <div class="segment-example">Example:
-1. Type_1
-1.1. Point_1.1
-1.2. Point_1.2
-1.2.1. Sub_point_1.2.1
-1.2.1.1. Deep_point_1.2.1.1
-1.2.1.1.1. Deeper_point_1.2.1.1.1
-1.2.1.1.1.1. Deepest_point_1.2.1.1.1.1
-2. Type_2
-2.1. Point_2.1</div>
+1. Technology
+1.1. Machine Learning
+1.2. Natural Language Processing
+1.2.1. Speech Recognition
+1.2.2. Text Analytics
+2. Application
+2.1. Healthcare
+2.2. Finance
+2.3. Automotive</div>
                 </div>
                 <div class="form-group">
-                    <label for="segment_input">Segment Structure <span class="required">*</span></label>
-                    <textarea id="segment_input" name="segment_input" required></textarea>
+                    <label for="segment_input">Market Segment Structure <span class="required">*</span></label>
+                    <textarea id="segment_input" name="segment_input" placeholder="Enter your market segmentation structure here..." required></textarea>
                     <span class="error" id="segment_input-error">This field is required</span>
                     <span class="error" id="segment_validation-error"></span>
                 </div>
             </div>
 
-            <button type="submit" class="submit-btn">Generate PowerPoint Report</button>
+            <!-- Hidden fields for backend compatibility -->
+            <input type="hidden" name="headline_2" id="headline_2">
+            <input type="hidden" name="historical_year" value="2019-2023">
+            <input type="hidden" name="base_year" value="2024">
+            <input type="hidden" name="forecast_year" value="2032">
+            <input type="hidden" name="forecast_period" value="2025-2032">
+            <input type="hidden" name="cur" value="USD">
+
+            <button type="submit" class="submit-btn">🚀 Generate PowerPoint Report</button>
             
             <div class="loading">
                 <div class="spinner"></div>
@@ -429,9 +447,23 @@
             return errors;
         }
 
+        function validateCompanies(companiesText) {
+            const companies = companiesText.trim().split('\n').filter(company => company.trim());
+            if (companies.length === 0) {
+                return ["At least one company must be provided"];
+            }
+            return [];
+        }
+
+        // Auto-fill headline_2 with headline value for backend compatibility
+        document.getElementById('headline').addEventListener('input', function() {
+            document.getElementById('headline_2').value = this.value;
+        });
+
         document.getElementById('pptForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            // Clear previous errors
             document.querySelectorAll('.error').forEach(err => err.style.display = 'none');
             document.querySelector('.error-message').style.display = 'none';
             document.querySelector('.success-message').style.display = 'none';
@@ -439,13 +471,29 @@
             let isValid = true;
             const requiredFields = this.querySelectorAll('[required]');
             
+            // Validate required fields
             requiredFields.forEach(field => {
                 if (!field.value.trim()) {
-                    document.getElementById(field.id + '-error').style.display = 'block';
+                    const errorElement = document.getElementById(field.id + '-error');
+                    if (errorElement) {
+                        errorElement.style.display = 'block';
+                    }
                     isValid = false;
                 }
             });
             
+            // Validate companies
+            const companiesInput = document.getElementById('companies').value;
+            const companiesErrors = validateCompanies(companiesInput);
+            
+            if (companiesErrors.length > 0) {
+                const errorElement = document.getElementById('companies-error');
+                errorElement.textContent = companiesErrors.join('; ');
+                errorElement.style.display = 'block';
+                isValid = false;
+            }
+            
+            // Validate segment hierarchy
             const segmentInput = document.getElementById('segment_input').value;
             const segmentErrors = validateSegmentHierarchy(segmentInput);
             
@@ -460,6 +508,10 @@
                 return;
             }
             
+            // Ensure headline_2 is set
+            document.getElementById('headline_2').value = document.getElementById('headline').value;
+            
+            // Show loading state
             document.querySelector('.submit-btn').disabled = true;
             document.querySelector('.loading').style.display = 'block';
             
@@ -475,6 +527,12 @@
                     const result = await response.json();
                     document.querySelector('.success-message').style.display = 'block';
                     document.getElementById('downloadLink').href = `/download/${result.filename}`;
+                    
+                    // Show generated content info if available
+                    if (result.generated_content) {
+                        console.log('Generated Research Journals:', result.generated_content.research_journals);
+                        console.log('Generated Industry Associations:', result.generated_content.industry_associations);
+                    }
                 } else {
                     const error = await response.json();
                     throw new Error(error.message || 'Failed to generate report');
@@ -488,22 +546,39 @@
             }
         });
         
+        // Real-time validation for required fields
         document.querySelectorAll('input[required], select[required], textarea[required]').forEach(field => {
             field.addEventListener('blur', function() {
                 const errorElement = document.getElementById(this.id + '-error');
-                if (!this.value.trim()) {
-                    errorElement.style.display = 'block';
-                } else {
-                    errorElement.style.display = 'none';
+                if (errorElement) {
+                    if (!this.value.trim()) {
+                        errorElement.style.display = 'block';
+                    } else {
+                        errorElement.style.display = 'none';
+                    }
                 }
             });
         });
         
+        // Real-time companies validation
+        document.getElementById('companies').addEventListener('input', function() {
+            const errors = validateCompanies(this.value);
+            const errorElement = document.getElementById('companies-error');
+            
+            if (errors.length > 0 && this.value.trim()) {
+                errorElement.textContent = errors.join('; ');
+                errorElement.style.display = 'block';
+            } else {
+                errorElement.style.display = 'none';
+            }
+        });
+        
+        // Real-time segment validation
         document.getElementById('segment_input').addEventListener('input', function() {
             const errors = validateSegmentHierarchy(this.value);
             const errorElement = document.getElementById('segment_validation-error');
             
-            if (errors.length > 0) {
+            if (errors.length > 0 && this.value.trim()) {
                 errorElement.textContent = 'Hierarchy errors: ' + errors.join('; ');
                 errorElement.style.display = 'block';
             } else {

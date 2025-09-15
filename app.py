@@ -28,63 +28,31 @@ from pptx.enum.chart import (
 from enum import Enum
 from typing import Optional, Dict, List, Any
 
-# Initialize Flask app
 app = Flask(__name__)
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
+app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  
 app.config['UPLOAD_FOLDER'] = 'generated_ppts'
 app.config['TEMPLATE_FOLDER'] = 'templates'
 
-# Create necessary directories
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['TEMPLATE_FOLDER'], exist_ok=True)
 
-# Load environment variables
 load_dotenv()
 api_key_openAI = os.getenv("OPENAI_API_KEY")
 api_key_gemini = os.getenv("GEMINI_API_KEY")
 
-# Initialize API clients
 client = OpenAI(api_key=api_key_openAI)
 genai.configure(api_key=api_key_gemini)
 
 # --- AI REQUEST TYPES ---
 class AIRequestType(Enum):
-    COMPANY_LIST = "company_list"
     EXECUTIVE_SUMMARY = "executive_summary"
     MARKET_ENABLERS = "market_enablers"
     INDUSTRY_EXPANSION = "industry_expansion"
     INVESTMENT_CHALLENGES = "investment_challenges"
     COMPANY_INFO = "company_info"
     COMPANY_REVENUE = "company_revenue"
-
-# --- FALLBACK RESPONSES ---
-FALLBACK_RESPONSES = {
-    AIRequestType.COMPANY_LIST: [
-        "TechCorp Inc.", "Global Systems Ltd.", "Innovation Partners", 
-        "Market Leaders Co.", "Industry Solutions", "Premier Tech",
-        "Advanced Systems", "Future Innovations", "Digital Dynamics", "Tech Pioneers"
-    ],
-    AIRequestType.EXECUTIVE_SUMMARY: "The {headline} market is experiencing robust growth, with a projected CAGR of 12.5% from {base_year} to {forecast_year}. The market size, valued at {cur} {rev_current} {value_in} in {base_year}, is expected to reach {cur} {rev_future} {value_in} by {forecast_year}. Key growth drivers include technological advancement, increasing demand, and market expansion in emerging economies.",
-    AIRequestType.MARKET_ENABLERS: "Digital Transformation: The rapid digitalization across industries is driving unprecedented demand for {headline}, with organizations investing heavily in modernization initiatives to remain competitive.\n\nRegulatory Support: Government initiatives and favorable policies are creating a conducive environment for market growth, with increased funding and tax incentives supporting industry expansion.",
-    AIRequestType.INDUSTRY_EXPANSION: "The {main_topic} segment is witnessing unprecedented growth, driven by technological innovations and increasing adoption across various industries. This expansion is creating significant opportunities for market players to develop specialized solutions.\n\nMarket demand for {main_topic} solutions continues to surge as organizations recognize the strategic value and operational benefits. The increasing investment in research and development is accelerating product innovation and market penetration.",
-    AIRequestType.INVESTMENT_CHALLENGES: "The substantial capital requirements for implementing {headline} solutions present a significant barrier for small and medium enterprises. High upfront costs for infrastructure, technology, and skilled personnel limit market entry.\n\nReturn on investment concerns continue to challenge market adoption, as organizations struggle to justify the initial expenditure against uncertain long-term benefits. This financial hesitation particularly impacts emerging markets where capital availability is constrained.",
-    AIRequestType.COMPANY_INFO: {
-        "company_name": "{company_name}",
-        "headquarters": "New York, USA",
-        "employee_count": "10,000+",
-        "top_product": "Advanced Technology Solutions",
-        "estd": "1995",
-        "website": "www.example.com",
-        "geographic_presence": "Global - 50+ countries",
-        "ownership": "Public (NYSE: TECH)",
-        "short_description_company": "{company_name} is a leading global provider in the {headline} market, offering innovative solutions that drive digital transformation across industries. With over 25 years of experience, the company has established itself as a trusted partner for organizations seeking to leverage cutting-edge technology. The company's comprehensive portfolio includes advanced analytics, cloud solutions, and enterprise software that enable businesses to optimize operations and achieve sustainable growth. Through continuous innovation and strategic partnerships, {company_name} maintains its position at the forefront of technological advancement, serving thousands of clients worldwide."
-    },
-    AIRequestType.COMPANY_REVENUE: [
-        random.randint(80, 120),
-        random.randint(90, 130),
-        random.randint(100, 150)
-    ]
-}
+    RESEARCH_JOURNALS = "research_journals"
+    INDUSTRY_ASSOCIATIONS = "industry_associations"
 
 # --- UNIFIED AI FUNCTION ---
 class AIService:
@@ -97,41 +65,31 @@ class AIService:
     
     def generate_content(self, request_type: AIRequestType, context: Dict[str, Any]) -> Any:
         """
-        Unified AI content generation function with fallback handling
+        Unified AI content generation function
         
         Args:
             request_type: Type of AI request from AIRequestType enum
             context: Dictionary containing context variables for the request
             
         Returns:
-            Generated content or fallback response
+            Generated content
         """
-        try:
-            if request_type == AIRequestType.COMPANY_LIST:
-                return self._generate_company_list(context)
-            elif request_type == AIRequestType.EXECUTIVE_SUMMARY:
-                return self._generate_executive_summary(context)
-            elif request_type == AIRequestType.MARKET_ENABLERS:
-                return self._generate_market_enablers(context)
-            elif request_type == AIRequestType.INDUSTRY_EXPANSION:
-                return self._generate_industry_expansion(context)
-            elif request_type == AIRequestType.INVESTMENT_CHALLENGES:
-                return self._generate_investment_challenges(context)
-            elif request_type == AIRequestType.COMPANY_INFO:
-                return self._generate_company_info(context)
-            elif request_type == AIRequestType.COMPANY_REVENUE:
-                return self._generate_company_revenue(context)
-        except Exception as e:
-            print(f"AI generation failed for {request_type.value}: {str(e)}")
-            return self._get_fallback_response(request_type, context)
-    
-    def _generate_company_list(self, context: Dict[str, Any]) -> List[str]:
-        prompt = f'Based on the headline "{context["headline"]}", generate a list of 10 relevant company names. Only return a Python list in the format: ["Company 1", "Company 2"]'
-        response = self.openai_client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return ast.literal_eval(response.choices[0].message.content.strip())
+        if request_type == AIRequestType.EXECUTIVE_SUMMARY:
+            return self._generate_executive_summary(context)
+        elif request_type == AIRequestType.MARKET_ENABLERS:
+            return self._generate_market_enablers(context)
+        elif request_type == AIRequestType.INDUSTRY_EXPANSION:
+            return self._generate_industry_expansion(context)
+        elif request_type == AIRequestType.INVESTMENT_CHALLENGES:
+            return self._generate_investment_challenges(context)
+        elif request_type == AIRequestType.COMPANY_INFO:
+            return self._generate_company_info(context)
+        elif request_type == AIRequestType.COMPANY_REVENUE:
+            return self._generate_company_revenue(context)
+        elif request_type == AIRequestType.RESEARCH_JOURNALS:
+            return self._generate_research_journals(context)
+        elif request_type == AIRequestType.INDUSTRY_ASSOCIATIONS:
+            return self._generate_industry_associations(context)
     
     def _generate_executive_summary(self, context: Dict[str, Any]) -> str:
         prompt = f"Write an executive summary for {context['headline']} using components like CAGR and market share with expected growth rate and revenue, for a global market of {context['value_in']} in {context['cur']} for the years {context['historical_year']} to {context['forecast_year']} within 125 words. Return only a single paragraph."
@@ -175,34 +133,118 @@ class AIService:
     
     def _generate_company_revenue(self, context: Dict[str, Any]) -> List[int]:
         if not self.gemini_configured:
-            return self._get_fallback_response(AIRequestType.COMPANY_REVENUE, context)
+            # Return random data if Gemini is not available
+            return [
+                random.randint(80, 120),
+                random.randint(90, 130),
+                random.randint(100, 150)
+            ]
         
         model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = f"Give me only a list of estimated revenue in {context['currency']} for {context['company_name']} for 2022, 2023, and 2024. Format: [value_2022, value_2023, value_2024]. If no data is available, generate realistic random numbers. No extra text no explanation just the list."
-        response = model.generate_content(prompt)
-        return ast.literal_eval(response.text.strip())
+        try:
+            response = model.generate_content(prompt)
+            return ast.literal_eval(response.text.strip())
+        except:
+            # Return random data if generation fails
+            return [
+                random.randint(80, 120),
+                random.randint(90, 130),
+                random.randint(100, 150)
+            ]
     
-    def _get_fallback_response(self, request_type: AIRequestType, context: Dict[str, Any]) -> Any:
-        """Get fallback response with context variable substitution"""
-        fallback = FALLBACK_RESPONSES[request_type]
+    def _generate_research_journals(self, context: Dict[str, Any]) -> List[str]:
+        """Generate research journals related to the market"""
+        market_name = context.get('headline', 'Technology Market')
         
-        if isinstance(fallback, str):
-            # Replace placeholders in string
-            for key, value in context.items():
-                fallback = fallback.replace(f"{{{key}}}", str(value))
-            return fallback
-        elif isinstance(fallback, dict):
-            # Deep copy and replace placeholders in dictionary
-            result = {}
-            for k, v in fallback.items():
-                if isinstance(v, str):
-                    for key, value in context.items():
-                        v = v.replace(f"{{{key}}}", str(value))
-                result[k] = v
-            return result
-        else:
-            # Return as-is for lists and other types
-            return fallback
+        response = self.openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a JSON generator. Provide the names of research journals related to the specified market "
+                        "in JSON format. Only include the names as strings, no additional information "
+                        "is needed. Search established, reputable journals.\n\n"
+                        "Give 5 journal names.\n\n"
+                        "**Output format must be a JSON object with a 'journals' key containing an array of strings:**\n"
+                        '{"journals": ["Journal Name 1", "Journal Name 2"]}\n'
+                        "If there are no journals for the given market, return: {\"journals\": []}"
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": f"Find research journals for: {market_name}"
+                }
+            ],
+            temperature=0.2,
+            max_tokens=500,
+            response_format={"type": "json_object"}
+        )
+        
+        json_response = json.loads(response.choices[0].message.content)
+        journals = json_response.get('journals', [])
+        
+        # Ensure we have exactly 5 journals
+        default_journals = [
+            "Journal of Market Research",
+            "International Business Review",
+            "Strategic Management Journal",
+            "Harvard Business Review",
+            "Industrial Marketing Management"
+        ]
+        
+        if len(journals) < 5:
+            journals.extend(default_journals[len(journals):5])
+        
+        return journals[:5]  # Return exactly 5 journals
+    
+    def _generate_industry_associations(self, context: Dict[str, Any]) -> List[str]:
+        """Generate industry associations and government organizations related to the market"""
+        market_name = context.get('headline', 'Technology Market')
+        
+        response = self.openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a JSON generator. Provide the names of industry associations or government organizations "
+                        "related to the specified market in JSON format. Only include the names "
+                        "as strings, no additional information is needed. Search for highly relevant organizations "
+                        "to the market name (exclude private company names). Give 5.\n\n"
+                        "**Output format must be a JSON object with an 'associations' key containing an array of strings:**\n"
+                        '{"associations": ["Association Name 1", "Association Name 2"]}\n'
+                        "If there are no relevant associations or organizations for the given market, "
+                        "return: {\"associations\": []}"
+                    )
+                },
+                {
+                    "role": "user",
+                    "content": f"Find industry associations and government organizations for: {market_name}"
+                }
+            ],
+            temperature=0.2,
+            max_tokens=500,
+            response_format={"type": "json_object"}
+        )
+        
+        json_response = json.loads(response.choices[0].message.content)
+        associations = json_response.get('associations', [])
+        
+        # Ensure we have exactly 5 associations
+        default_associations = [
+            "Global Industry Alliance",
+            "International Trade Association",
+            "National Business Federation",
+            "Industry Development Council",
+            "Professional Standards Organization"
+        ]
+        
+        if len(associations) < 5:
+            associations.extend(default_associations[len(associations):5])
+        
+        return associations[:5]  # Return exactly 5 associations
 
 # Initialize AI Service globally
 ai_service = AIService(client, api_key_gemini)
@@ -480,7 +522,7 @@ def validate_segment_hierarchy(segment_text):
         if not line:
             continue
 
-        match = re.match(r'^(\d+(?:\.\d+)*)\.\s+(.+)$', line)
+        match = re.match(r'^(\d+(?:\.\d+)*)\.\s*(.+)$', line)
         if not match:
             errors.append(f"Line {i + 1}: Invalid format")
             continue
@@ -491,7 +533,7 @@ def validate_segment_hierarchy(segment_text):
         if depth == 1:
             if number_parts[0] != last_main_number + 1:
                 errors.append(f"Line {i + 1}: Expected main number {last_main_number + 1}, got {number_parts[0]}")
-            last_main_number = number_parts[0]
+            last_main_number = number_parts[0]  
             last_sub_numbers = {}
         elif depth == 2:
             main_num = number_parts[0]
@@ -507,7 +549,7 @@ def validate_segment_hierarchy(segment_text):
         elif depth == 3:
             main_num = number_parts[0]
             sub_num = number_parts[1]
-            sub_sub_num = number_parts[2]
+            sub_sub_num = number_parts[2] 
             
             if main_num != last_main_number:
                 errors.append(f"Line {i + 1}: Sub-sub-item doesn't match current main number")
@@ -543,7 +585,23 @@ def parse_segment_input(segment_input: str) -> Dict[str, Dict]:
     for line in lines:
         if not line.strip():
             continue
-        key, value = line.split(". ", 1)
+        if ". " in line:
+            key, value = line.split(". ", 1)
+        elif "." in line:
+            parts = line.split(".")
+            for i in range(len(parts) - 1, 0, -1):
+                try:
+                    number_part = ".".join(parts[:i])
+                    text_part = ".".join(parts[i:])
+                    [int(n) for n in number_part.split('.')]
+                    key = number_part
+                    value = text_part
+                    break
+                except ValueError:
+                    continue
+        else:
+            continue
+            
         parts = key.split(".")
         depth = len(parts)
         label = value.strip()
@@ -554,7 +612,6 @@ def parse_segment_input(segment_input: str) -> Dict[str, Dict]:
         current[label] = {}
         level_stack.append(label)
     return nested_dict
-
 
 def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, user_segment: str, kmi_items: List[str] = None) -> Dict[str, int]:
     """Generate Table of Contents data with dynamic KMI items"""
@@ -695,7 +752,7 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
                 para = cell.text_frame.paragraphs[0]
                 para.text = "          " * level + key
                 font = para.font
-                font.color.rgb, font.size, font.name = RGBColor(0, 0, 0), Pt(11), "Calibri"
+                font.color.rgb, font.size, font.name = RGBColor(0, 0, 0), Pt(11), "Pooppins"
                 if key.startswith("The following companies"):
                     font.size = Pt(9)
                     font.color.rgb, font.bold = RGBColor(112, 48, 160), True
@@ -766,9 +823,7 @@ def generate_ppt():
         required_fields = [
             'headline', 'headline_2', 'historical_year', 'base_year',
             'forecast_year', 'forecast_period', 'cur', 'value_in',
-            'rev_current', 'rev_future', 'org_1', 'org_2', 'org_3',
-            'org_4', 'org_5', 'paper_1', 'paper_2', 'paper_3',
-            'paper_4', 'paper_5', 'segment_input'
+            'rev_current', 'rev_future', 'segment_input', 'companies'
         ]
         
         missing_fields = []
@@ -790,7 +845,7 @@ def generate_ppt():
             }), 400
         
         # Extract form data
-        headline = form_data['headline']
+        headline = form_data['headline'].upper()
         headline_2 = headline
         historical_year = "2019-2023"
         base_year = "2024"
@@ -799,19 +854,6 @@ def generate_ppt():
         cur = "USD"
         value_in = form_data['value_in']
         currency = f"{cur} {value_in}"
-        
-        org_1 = form_data['org_1']
-        org_2 = form_data['org_2']
-        org_3 = form_data['org_3']
-        org_4 = form_data['org_4']
-        org_5 = form_data['org_5']
-        
-        paper_1 = form_data['paper_1']
-        paper_2 = form_data['paper_2']
-        paper_3 = form_data['paper_3']
-        paper_4 = form_data['paper_4']
-        paper_5 = form_data['paper_5']
-        
         rev_current = form_data['rev_current']
         rev_future = form_data['rev_future']
         
@@ -822,6 +864,15 @@ def generate_ppt():
         if kmi_input:
             kmi_items = [item.strip() for item in kmi_input.split('\n') if item.strip()]
         
+        # Get companies from form input
+        companies_input = form_data['companies'].strip()
+        company_list = [company.strip() for company in companies_input.split('\n') if company.strip()]
+        
+        if not company_list:
+            return jsonify({
+                'error': 'At least one company must be provided',
+                'message': 'Please provide company names, one per line'
+            }), 400
         
         # Parse segment input
         nested_dict = parse_segment_input(segment_input)
@@ -846,7 +897,7 @@ def generate_ppt():
         context = "\n".join(output_lines)
 
         # Generate TOC
-        toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period,user_segment,kmi_items)
+        toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period, user_segment, kmi_items)
         
         # Generate AI content using unified service
         ai_context = {
@@ -863,13 +914,17 @@ def generate_ppt():
         }
         
         # Generate all AI content
-        company_list = ai_service.generate_content(AIRequestType.COMPANY_LIST, ai_context)
         mpara_11 = ai_service.generate_content(AIRequestType.EXECUTIVE_SUMMARY, ai_context)
         para_11 = ai_service.generate_content(AIRequestType.MARKET_ENABLERS, ai_context)
         para_14 = ai_service.generate_content(AIRequestType.INDUSTRY_EXPANSION, ai_context)
         para_15 = ai_service.generate_content(AIRequestType.INVESTMENT_CHALLENGES, ai_context)
+        research_journals = ai_service.generate_content(AIRequestType.RESEARCH_JOURNALS, ai_context)
+        industry_associations = ai_service.generate_content(AIRequestType.INDUSTRY_ASSOCIATIONS, ai_context)
         
-        # Get company info
+        print(f"Generated research journals: {research_journals}")
+        print(f"Generated industry associations: {industry_associations}")
+        
+        # Get company info for the first company
         ai_context['company_name'] = company_list[0]
         company_info = ai_service.generate_content(AIRequestType.COMPANY_INFO, ai_context)
         revenue_list = ai_service.generate_content(AIRequestType.COMPANY_REVENUE, ai_context)
@@ -898,14 +953,14 @@ def generate_ppt():
         slide_data = {
             0: {
                 "heading": headline,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
                 "context": context,
             },
             1: {
                 "heading_2": f"{headline}({currency.upper()})",
-                "hyear": f"Historical year - {historical_year}",
-                "fyear": f"Forecast year - {forecast_period}",
-                "byear": f"Base year - {base_year}",
+                "hyear": f"Historical Year - {historical_year}",
+                "fyear": f"Forecast Year - {forecast_period}",
+                "byear": f"Base Year - {base_year}",
             }, 
             2: {
                 "heading_2": f"{headline}({currency.upper()})",
@@ -922,16 +977,16 @@ def generate_ppt():
                 "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
             },
             10: {
-                "org_1": org_1,
-                "org_2": org_2,
-                "org_3": org_3,
-                "org_4": org_4,
-                "org_5": org_5,
-                "paper_1": paper_1,
-                "paper_2": paper_2,
-                "paper_3": paper_3,
-                "paper_4": paper_4,
-                "paper_5": paper_5,
+                "org_1": industry_associations[0] if len(industry_associations) > 0 else "Global Industry Alliance",
+                "org_2": industry_associations[1] if len(industry_associations) > 1 else "International Trade Association",
+                "org_3": industry_associations[2] if len(industry_associations) > 2 else "National Business Federation",
+                "org_4": industry_associations[3] if len(industry_associations) > 3 else "Industry Development Council",
+                "org_5": industry_associations[4] if len(industry_associations) > 4 else "Professional Standards Organization",
+                "paper_1": research_journals[0] if len(research_journals) > 0 else "Journal of Market Research",
+                "paper_2": research_journals[1] if len(research_journals) > 1 else "International Business Review",
+                "paper_3": research_journals[2] if len(research_journals) > 2 else "Strategic Management Journal",
+                "paper_4": research_journals[3] if len(research_journals) > 3 else "Harvard Business Review",
+                "paper_5": research_journals[4] if len(research_journals) > 4 else "Industrial Marketing Management",
             },
             12: {
                 "heading": headline,
@@ -1296,4 +1351,4 @@ if __name__ == '__main__':
         print("Please save the HTML content from the artifact to templates/index.html")
     
     # Run the Flask app
-    app.run(debug=True, port=5000,)
+    app.run(host="0.0.0.0",debug=True, port=5000,)
