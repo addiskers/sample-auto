@@ -654,17 +654,24 @@ def validate_segment_hierarchy(segment_text):
     return errors
 
 
-def generate_random_data():
-    """Generate random data for charts"""
-    years = list(range(2019, 2033))
-    type_ranges = {1: (40, 50), 2: (25, 35), 3: (15, 25), 4: (5, 25)}
-    data = []
-    for year in years:
-        row = [year]
-        for i in range(4): 
-            low, high = type_ranges.get(i + 1, (5, 25))
-            row.append(random.randint(low, high))
-        data.append(row)
+def generate_actual_data():
+    """Generate actual data from the provided table"""
+    data = [
+        [2019, 100, 74, 66, 64, 76, 66, 63],
+        [2020, 106, 83, 70, 72, 80, 65, 84],
+        [2021, 112, 87, 69, 75, 72, 74, 83],
+        [2022, 117, 77, 77, 86, 76, 79, 84],
+        [2023, 122, 96, 89, 80, 74, 81, 85],
+        [2024, 128, 94, 92, 89, 77, 78, 98],
+        [2025, 137, 87, 105, 85, 91, 93, 86],
+        [2026, 142, 102, 114, 102, 114, 94, 95],
+        [2027, 148, 103, 118, 92, 118, 95, 112],
+        [2028, 155, 115, 93, 102, 93, 95, 113],
+        [2029, 164, 110, 131, 100, 108, 115, 118],
+        [2030, 176, 141, 127, 135, 113, 127, 128],
+        [2031, 179, 118, 126, 118, 118, 129, 111],
+        [2032, 192, 132, 115, 132, 109, 126, 144]
+    ]
     return data
 
 
@@ -858,32 +865,27 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
 
 def create_chart_on_slide(slide: Any, data: List[List], chart_columns: List[str], 
                          left: float, top: float, width: float, height: float):
-    """Create a stacked column chart on the specified slide"""
     chart_data = CategoryChartData()
     chart_data.categories = [str(row[0]) for row in data]
 
-    # Add series in correct order
-    for i, col_name in enumerate(chart_columns[:4]):  # Limit to 4 columns
-        chart_data.add_series(col_name, [row[i + 1] for row in data])
+    num_series = min(len(chart_columns), 7)
+    for i in range(num_series):
+        chart_data.add_series(chart_columns[i], [row[i + 1] for row in data])
 
-    # Add Chart
     chart = slide.shapes.add_chart(
         XL_CHART_TYPE.COLUMN_STACKED, left, top, width, height, chart_data
     ).chart
-    chart.plots[0].gap_width = 250
     
-    # Style
+    chart.plots[0].gap_width = 150  
     chart.chart_style = 2
     chart.has_title = False
 
-    # Legend Position
     chart.has_legend = True
-    chart.legend.font.size = Pt(10)
+    chart.legend.font.size = Pt(8)  
     chart.legend.font.name = "Poppins"
     chart.legend.position = XL_LEGEND_POSITION.BOTTOM
     chart.legend.include_in_layout = False
 
-    # Remove gridlines & labels
     value_axis = chart.value_axis
     value_axis.visible = False
     value_axis.has_major_gridlines = False
@@ -1141,27 +1143,27 @@ def generate_ppt():
             },
             24: {
                 "2_heading": headline_2,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
             },
-            24: {"heading": headline, "timeline": historical_year, "cur": f"{cur} {value_in}"},
-            25: {
-                "2_heading": headline_2,
-                "type_1": main_topic[0] if main_topic else "Type 1",
-                "timeline": historical_year,
-                "cur": f"{cur} {value_in}",
-            },
+            25: {"heading": headline, "timeline": "2019-2032", "cur": f"{cur.upper()} {value_in.upper()}"},
             26: {
                 "2_heading": headline_2,
-                "type_1": main_topic[0] if main_topic else "Type 1",
-                "timeline": historical_year,
-                "cur": f"{cur} {value_in}",
+                "type_1": main_topic[0].upper() if main_topic else "Type 1",
+                "timeline": "2019-2032",
+                "cur": f"{cur.upper()} {value_in.upper()}",
             },
             27: {
                 "2_heading": headline_2,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+                "type_1": main_topic[0].upper() if main_topic else "Type 1",
+                "timeline": "2019-2032",
+                "cur": f"{cur.upper()} {value_in.upper()}",
             },
-            28: {"heading": headline},
-            29: {
+            28: {
+                "2_heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+            },
+            29: {"heading": headline},
+            30: {
                 "company": company_info["company_name"],
                 "e": company_info["employee_count"],
                 "rev": str(revenue_list[1]),
@@ -1170,11 +1172,11 @@ def generate_ppt():
                 "es": company_info["estd"],
                 "website": company_info["website"],
             },
-            30: {
+            31: {
                 "2_heading": headline_2,
                 "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
             },
-            31: {
+            32: {
                 "company": company_info["company_name"],
                 "e": company_info["employee_count"],
                 "rev": str(revenue_list[2]),
@@ -1185,8 +1187,8 @@ def generate_ppt():
                 "product": company_info["top_product"],
                 "para": company_info["short_description_company"],
             },
-            32: {"company": company_info["company_name"]},
             33: {"company": company_info["company_name"]},
+            34: {"company": company_info["company_name"]},
         }
 
         # --- PRESENTATION MODIFICATION ---
@@ -1225,7 +1227,7 @@ def generate_ppt():
 
         # Step 3: Perform text replacements in tables on specific slides
         print("Performing text replacements inside tables...")
-        table_slide_indices = [10, 16, 17,18, 22, 24, 25, 26, 29, 31, 32, 33]
+        table_slide_indices = [10, 16, 17,18, 22, 24, 25, 26, 28,29, 31, 32, 33]
         replace_text_in_tables(prs, table_slide_indices, slide_data)
 
         # Step 4: Add and populate the Table of Contents slides
@@ -1234,15 +1236,12 @@ def generate_ppt():
         add_toc_to_slides(prs, toc_data_levels, toc_slide_indices)
 
         # Step 5: Add tables and charts
-        target_slide_indices = [23, 25, 26]
+        target_slide_indices = [23, 26, 27]
         graph_table = list(nested_dict[main_topic[0]].keys()) if main_topic else []
         total_rows = len(graph_table)
         
         # Logic for row labels
-        max_visible_types = 3
-        row_labels = [graph_table[i] for i in range(min(total_rows, max_visible_types))]
-        if total_rows > max_visible_types:
-            row_labels.append("Others")
+        row_labels = graph_table.copy()  # Use all segments
         row_labels.append("Total")
 
         # Table columns
@@ -1346,16 +1345,13 @@ def generate_ppt():
         # Add charts to slides
         if main_topic:
             # Determine Columns
-            if total_rows <= max_visible_types:
-                chart_columns = graph_table
-            else:
-                chart_columns = graph_table[:max_visible_types] + ["Others"]
+            chart_columns = graph_table
 
             # Insert Chart in Each Slide
             for idx in target_slide_indices:
                 if idx < len(prs.slides):
                     slide = prs.slides[idx]
-                    data = generate_random_data()
+                    data = generate_actual_data()
                     
                     # Create chart
                     create_chart_on_slide(
