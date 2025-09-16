@@ -318,6 +318,11 @@
                         <input type="number" id="rev_future" name="rev_future" placeholder="e.g., 500" step="0.1" required>
                         <span class="error" id="rev_future-error">This field is required</span>
                     </div>
+                    <div class="form-group">
+                        <label for="cagr">CAGR (2025-2032) <span class="required">*</span></label>
+                        <input type="number" id="cagr" name="cagr" placeholder="e.g., 20.5" step="0.1" min="0" max="100" required>
+                        <span class="error" id="cagr-error">This field is required</span>
+                    </div>
                     <div class="form-group full-width">
                         <label for="kmi_items">Additional Key Market Insights (Optional)</label>
                         <textarea id="kmi_items" name="kmi_items" placeholder="Enter each additional KMI on a new line&#10;e.g.:&#10;Emerging Market Trends&#10;Technological Disruptions&#10;Regulatory Changes"></textarea>

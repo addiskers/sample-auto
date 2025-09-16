@@ -92,12 +92,24 @@ class AIService:
             return self._generate_industry_associations(context)
     
     def _generate_executive_summary(self, context: Dict[str, Any]) -> str:
-        prompt = f"Write an executive summary for {context['headline']} using components like CAGR and market share with expected growth rate and revenue, for a global market of {context['value_in']} in {context['cur']} for the years {context['historical_year']} to {context['forecast_year']} within 125 words. Return only a single paragraph."
-        response = self.openai_client.chat.completions.create(
-            model="gpt-4",
-            messages=[{"role": "user", "content": prompt}]
-        )
-        return response.choices[0].message.content
+        first_line = (f"The {context['headline']} is valued at {context['cur']} {context['rev_current']} "
+                    f"{context['value_in']} in {context['base_year']}, and is expected to reach "
+                    f"{context['cur']} {context['rev_future']} {context['value_in']} by {context['forecast_year']}. "
+                    f"The market shows a steady CAGR of {context.get('cagr')}% from 2025 to 2032.")
+        
+        prompt = f"Write an executive summary for {context['headline']} focusing on key market drivers, trends, and growth factors within 100 words. Do not include market size or revenue figures as they are already provided. Focus on qualitative insights about market dynamics, key players, and future outlook."
+        try:
+            response = self.openai_client.chat.completions.create(
+                model="gpt-4",
+                messages=[{"role": "user", "content": prompt}]
+            )
+            ai_summary = response.choices[0].message.content
+            full_summary = f"{first_line} {ai_summary}"
+            return full_summary
+            
+        except Exception as e:
+            print(f"Error generating executive summary: {e}")
+            return first_line
     
     def _generate_market_enablers(self, context: Dict[str, Any]) -> str:
         prompt = f'Write an executive summary about key market enablers (2 points) for {context["headline"]}, each 100-125 words. Return a Python list like ["heading: context", "heading: context"].'
@@ -107,22 +119,42 @@ class AIService:
         )
         return "\n".join(ast.literal_eval(response.choices[0].message.content))
     
-    def _generate_industry_expansion(self, context: Dict[str, Any]) -> str:
-        prompt = f'Write about "The Expanding {context["main_topic"]} Industry As A Key Driver For {context["headline"]}" (2 points, 90-120 words each). Return a Python list like ["content", "content"].'
+    def _generate_industry_expansion(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        prompt = (
+            f'Write one TOP Key Driver for the {context["headline"]} market. '
+            f'Include a clear heading for the driver. '
+            f'Return the output strictly as a Python dictionary with the following structure: '
+            f'{{"title": "7–10 words", "paragraphs": ["paragraph1", "paragraph2", "paragraph3"]}}. '
+            f'Each paragraph should be 200 words strict, qualitative in tone, '
+            f'and include real-world examples and facts. '
+            f'Do not include market size, numbers, or links.'
+        )
+
         response = self.openai_client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-        return "\n".join(ast.literal_eval(response.choices[0].message.content))
+
+        # Parse into a Python dict
+        return ast.literal_eval(response.choices[0].message.content)
     
     def _generate_investment_challenges(self, context: Dict[str, Any]) -> str:
-        prompt = f'Write about "High Initial Investment And Setup Costs Are Posing Challenge To The Growth Of The Market for {context["headline"]}" (2 points, 90-120 words each). Return a Python list like ["content", "content"].'
+        prompt = (
+            f'Write one TOP Key MARKET RESTRAINTS or CHALLENGES for the {context["headline"]} market. '
+            f'Include a clear heading for the driver. '
+            f'Return the output strictly as a Python dictionary with the following structure: '
+            f'{{"title": "7–10 words", "paragraphs": ["paragraph1", "paragraph2", "paragraph3"]}}. '
+            f'Each paragraph should be 200 words strict, qualitative in tone, '
+            f'and include real-world examples and facts. '
+            f'Do not include market size, numbers, or links.'
+        )
+
         response = self.openai_client.chat.completions.create(
             model="gpt-4",
             messages=[{"role": "user", "content": prompt}]
         )
-        return "\n".join(ast.literal_eval(response.choices[0].message.content))
-    
+
+        return ast.literal_eval(response.choices[0].message.content)
     
     def _generate_company_info(self, context: Dict[str, Any]) -> Dict[str, str]:
         prompt = f'''Generate information about {context["company_name"]} in the "{context["headline"]}" domain. 
@@ -144,7 +176,7 @@ class AIService:
         
         try:
             response = self.openai_client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4",  # Keep original model
                 messages=[
                     {
                         "role": "system", 
@@ -154,11 +186,17 @@ class AIService:
                         "role": "user", 
                         "content": prompt
                     }
-                ],
-                response_format={"type": "json_object"}  # Force JSON response
+                ]
+                # Removed response_format parameter
             )
             
             content = response.choices[0].message.content.strip()
+            
+            if content.startswith("```json"):
+                content = content[7:]
+            if content.endswith("```"):
+                content = content[:-3]
+            content = content.strip()
             
             # Try to parse the JSON
             try:
@@ -167,32 +205,12 @@ class AIService:
                 print(f"JSON decode error: {json_error}")
                 print(f"Response content: {content}")
                 # Return default values if JSON parsing fails
-                return {
-                    "company_name": context["company_name"],
-                    "headquarters": "United States",
-                    "employee_count": "1000-5000",
-                    "top_product": "Industry Solutions",
-                    "estd": "2000",
-                    "website": f"www.{context['company_name'].lower().replace(' ', '')}.com",
-                    "geographic_presence": "Global",
-                    "ownership": "Private",
-                    "short_description_company": f"{context['company_name']} is a leading company in the {context['headline']} industry, providing innovative solutions and services to customers worldwide. The company has established itself as a key player in the market through its commitment to quality, innovation, and customer satisfaction. With a strong focus on research and development, the company continues to expand its product portfolio and market presence globally."
-                }
+                return self._get_default_company_info(context)
                 
         except Exception as api_error:
             print(f"OpenAI API error: {api_error}")
             # Return default values if API call fails
-            return {
-                "company_name": context["company_name"],
-                "headquarters": "United States", 
-                "employee_count": "1000-5000",
-                "top_product": "Industry Solutions",
-                "estd": "2000",
-                "website": f"www.{context['company_name'].lower().replace(' ', '')}.com",
-                "geographic_presence": "Global",
-                "ownership": "Private",
-                "short_description_company": f"{context['company_name']} is a leading company in the {context['headline']} industry, providing innovative solutions and services to customers worldwide. The company has established itself as a key player in the market through its commitment to quality, innovation, and customer satisfaction. With a strong focus on research and development, the company continues to expand its product portfolio and market presence globally."
-            }
+            return self._get_default_company_info(context)
     def _generate_company_revenue(self, context: Dict[str, Any]) -> List[int]:
         if not self.gemini_configured:
             # Return random data if Gemini is not available
@@ -711,13 +729,12 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
         "Key Success Factors",
         "Market Impacting Factors", 
         "Top Investment Pockets",
-        "Market Attractiveness Index",
+        "Market Attractiveness Index, 2024",
         "Market Ecosystem",
         "PESTEL Analysis",
         "Pricing Analysis",
         "Regulatory Landscape",
-        "Case Study Analysis",
-        "Value Chain Analysis"
+      
     ]
 
     all_kmi_items = default_kmi_items.copy()
@@ -730,7 +747,7 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
     main_index = 6
     for type_index, (type_name, points) in enumerate(nested_dict.items(), start=main_index):
         toc_mid[
-            f"{type_index}. {headline} Size by {type_name} ({forecast_period})"
+            f"{type_index}. {headline} Size by {type_name} (2019-2032)"
         ] = 0
         point_count = 1
         for point, subpoints in points.items():
@@ -744,7 +761,7 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
 
     x = len(list(nested_dict.keys())) + 6
     toc_end_levels = {
-        f"{x}. {headline} Size by Region ({forecast_period})": 0,
+        f"{x}. {headline} Size by Region (2019-2032)": 0,
         f"{x}.1. North America ({user_segment})": 1,
         f"{x}.1.1. US": 2,
         f"{x}.1.2. Canada": 2,
@@ -786,7 +803,7 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
     for i in toc_slide_indices:
         slide = prs.slides[i]
         table_shape = slide.shapes.add_table(
-            20, 2, Inches(3.1), Inches(0.3), Inches(10), Inches(6.5)
+            17, 2, Inches(3.1), Inches(0.3), Inches(10), Inches(6.5)
         )
         table = table_shape.table
         for row in table.rows:
@@ -806,7 +823,7 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
     for i in toc_slide_indices:
         table = prs.slides[i].shapes[-1].table
         for col in range(2):
-            for row in range(20):
+            for row in range(17):
                 if content_index >= len(content_items):
                     break
                 cell, key = table.cell(row, col), content_items[content_index]
@@ -815,12 +832,12 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
                 para.text = "          " * level + key
                 font = para.font
                 font.color.rgb, font.size, font.name = RGBColor(0, 0, 0), Pt(11), "Pooppins"
-                if key.startswith("The following companies"):
+                if key.startswith("The following companies") or key.startswith("Note :"):
                     font.size = Pt(9)
                     font.color.rgb, font.bold = RGBColor(112, 48, 160), True
                 else:
                     font.size = Pt(11)
-                if level == 0 and not key.startswith("The following companies"):
+                if level == 0 and not key.startswith("The following companies") and not key.startswith("Note :"):
                     font.color.rgb, font.bold = RGBColor(112, 48, 160), True
                 else:
                     font.color.rgb = RGBColor(0, 0, 0)
@@ -885,7 +902,7 @@ def generate_ppt():
         required_fields = [
             'headline', 'headline_2', 'historical_year', 'base_year',
             'forecast_year', 'forecast_period', 'cur', 'value_in',
-            'rev_current', 'rev_future', 'segment_input', 'companies'
+            'rev_current', 'rev_future', 'segment_input', 'companies','cagr',
         ]
         
         missing_fields = []
@@ -907,8 +924,8 @@ def generate_ppt():
             }), 400
         
         # Extract form data
-        headline = form_data['headline'].upper()
-        headline_2 = headline
+        headline = form_data['headline']
+        headline_2 = headline.upper()
         historical_year = "2019-2023"
         base_year = "2024"
         forecast_year = "2032"
@@ -918,7 +935,7 @@ def generate_ppt():
         currency = f"{cur} {value_in}"
         rev_current = form_data['rev_current']
         rev_future = form_data['rev_future']
-        
+        cagr = form_data.get('cagr')
         segment_input = form_data['segment_input']
         kmi_items = []
         kmi_input = form_data.get('kmi_items', '').strip()
@@ -958,9 +975,10 @@ def generate_ppt():
         )
         context = "\n".join(output_lines)
         print(f"Generated context: {context}")
+        
         # Generate TOC
         toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period, user_segment, kmi_items)
-        
+
         # Generate AI content using unified service
         ai_context = {
             'headline': headline,
@@ -972,17 +990,21 @@ def generate_ppt():
             'rev_current': rev_current,
             'rev_future': rev_future,
             'main_topic': main_topic[0] if main_topic else "Type 1",
-            'currency': currency
+            'currency': currency.upper(),
+            'cagr': cagr,
         }
         
         # Generate all AI content
         mpara_11 = ai_service.generate_content(AIRequestType.EXECUTIVE_SUMMARY, ai_context)
         para_11 = ai_service.generate_content(AIRequestType.MARKET_ENABLERS, ai_context)
-        para_14 = ai_service.generate_content(AIRequestType.INDUSTRY_EXPANSION, ai_context)
-        para_15 = ai_service.generate_content(AIRequestType.INVESTMENT_CHALLENGES, ai_context)
+        para_14_dict = ai_service.generate_content(AIRequestType.INDUSTRY_EXPANSION, ai_context) 
+        para_15_dict = ai_service.generate_content(AIRequestType.INVESTMENT_CHALLENGES, ai_context)
         research_journals = ai_service.generate_content(AIRequestType.RESEARCH_JOURNALS, ai_context)
         industry_associations = ai_service.generate_content(AIRequestType.INDUSTRY_ASSOCIATIONS, ai_context)
-        
+        industry_title = para_14_dict['title']
+        industry_title_1 = para_15_dict['title']
+        para_15 = '\n'.join(para_15_dict['paragraphs'])
+        para_14 = '\n'.join(para_14_dict['paragraphs'])
         print(f"Generated research journals: {research_journals}")
         print(f"Generated industry associations: {industry_associations}")
         
@@ -1002,9 +1024,9 @@ def generate_ppt():
         toc_data_levels[f"{x+2}.1.4. Key Developments"] = 2
 
         toc_data_levels["The following companies are listed for indicative purposes only. Similar information will be provided for each, with detailed financial data available exclusively for publicly listed companies."] = 0
-
         for i, name in enumerate(company_list[1:], start=2):
             toc_data_levels[f"{x+2}.{i}. {name}"] = 1
+        toc_data_levels["Note : The list of companies mentioned are for indication purpose and are subject to change over the due course of the research"]=0
 
         toc_data_levels[f"{x+3}. Conclusion & Recommendation"] = 0
         table_taxonomy = {
@@ -1014,29 +1036,29 @@ def generate_ppt():
         # --- Slide Data Dictionary ---
         slide_data = {
             0: {
-                "heading": headline,
+                "heading": headline_2,
                 "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
                 "context": context,
             },
             1: {
-                "heading_2": f"{headline}({currency.upper()})",
+                "heading_2": f"{headline_2} ({currency.upper()})",
                 "hyear": f"Historical Year - {historical_year}",
                 "fyear": f"Forecast Year - {forecast_period}",
                 "byear": f"Base Year - {base_year}",
             }, 
             2: {
-                "heading_2": f"{headline}({currency.upper()})",
-                "hyear": f"Historical year - {historical_year}",
-                "fyear": f"Forecast year - {forecast_period}",
-                "byear": f"Base year - {base_year}",
+                "heading_2": f"{headline_2} ({currency.upper()})",
+                "hyear": f"Historical Year - {historical_year}",
+                "fyear": f"Forecast Year - {forecast_period}",
+                "byear": f"Base Year - {base_year}",
             },
             3: {
-                "heading": headline,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+                "heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
             },
             8: {
-                "heading": headline,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+                "heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
             },
             10: {
                 "org_1": industry_associations[0] if len(industry_associations) > 0 else "Global Industry Alliance",
@@ -1051,34 +1073,34 @@ def generate_ppt():
                 "paper_5": research_journals[4] if len(research_journals) > 4 else "Industrial Marketing Management",
             },
             12: {
-                "heading": headline,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+                "heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
             },
             13: {
-                "heading_2": f"{headline}, {currency}",
+                "heading_2": f"{headline_2}, {currency.upper()}",
                 "mpara": mpara_11,
                 "para": para_11,
-                "amount_1": rev_current,
+                "amount_1": rev_current,    
                 "amount_2": rev_future,
             },
             14: {
-                "heading": headline,
-                "amount_1": f"{rev_current} {value_in}",
-                "amount_2": f"{rev_future} {value_in}",
+                "heading": headline_2,
+                "amount_1": f"{rev_current} {value_in.upper()} {cur}",
+                "amount_2": f"{rev_future} {value_in.upper()} {cur}",
             },
-            15: {
-                "heading": headline,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+            15:  {
+                "heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year}    FORECAST TO {forecast_year}",
             },
-            16: {"heading": headline, "para": para_14},
-            17: {"para": para_15},
-            19: {
-                "heading": headline,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+            17: {"industry_title": industry_title, "para": para_14},
+            18: {"industry_title": industry_title_1, "para": para_15},
+            20:  {
+                "heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
             },
             21: {
-                "heading": headline,
-                "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
+                "heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
                 "types": s_segment,
             },
             22: {
@@ -1146,7 +1168,6 @@ def generate_ppt():
             }), 500
             
         prs = Presentation("testppt.pptx")
-
         # Step 1: Replace text in presentation
         for slide in prs.slides:
             data = slide_data.get(prs.slides.index(slide), {})
@@ -1174,7 +1195,7 @@ def generate_ppt():
 
         # Step 3: Perform text replacements in tables on specific slides
         print("Performing text replacements inside tables...")
-        table_slide_indices = [10, 16, 17, 22, 24, 25, 26, 29, 31, 32, 33]
+        table_slide_indices = [10, 16, 17,18, 22, 24, 25, 26, 29, 31, 32, 33]
         replace_text_in_tables(prs, table_slide_indices, slide_data)
 
         # Step 4: Add and populate the Table of Contents slides
