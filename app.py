@@ -563,10 +563,21 @@ def replace_text_preserving_color(paragraph, placeholder, new_text):
 def replace_text_in_paragraph(paragraph, placeholder, new_text):
     full_text = "".join(run.text for run in paragraph.runs)
     if placeholder in full_text:
-        new_full_text = full_text.replace(placeholder, new_text)
+        replacement_text = str(new_text) if new_text is not None else ""
+        
+        if not replacement_text.strip():
+            new_full_text = full_text.replace(placeholder, "").strip()
+            import re
+            new_full_text = re.sub(r'\n\s*\n', '\n', new_full_text)
+        else:
+            new_full_text = full_text.replace(placeholder, replacement_text)
+        
         for run in paragraph.runs:
             run.text = ""
-        paragraph.runs[0].text = new_full_text
+        if paragraph.runs:
+            paragraph.runs[0].text = new_full_text
+        else:
+            paragraph.add_run().text = new_full_text
 
 
 def set_cell_border(cell):
@@ -942,7 +953,24 @@ def generate_ppt():
         
         if kmi_input:
             kmi_items = [item.strip() for item in kmi_input.split('\n') if item.strip()]
-        
+      
+        def format_as_bullets(items_list):
+            """Convert list of items to bullet point string"""
+            if not items_list:
+                return ""
+            return '\n'.join([f"{item}" for item in items_list])
+        default_kmiitems = [
+                    "Key Success Factors",
+                    "Market Impacting Factors", 
+                    "Top Investment Pockets",
+                    "Market Attractiveness Index, 2024",
+                    "Market Ecosystem",
+                    "PESTEL Analysis",
+                    "Pricing Analysis",
+                    "Regulatory Landscape",
+                ]
+        default_kmi_bullets = format_as_bullets(default_kmiitems)
+        user_kmi_bullets = format_as_bullets(kmi_items) if kmi_items else ""
         # Get companies from form input
         companies_input = form_data['companies'].strip()
         company_list = [company.strip() for company in companies_input.split('\n') if company.strip()]
@@ -956,7 +984,7 @@ def generate_ppt():
         # Parse segment input
         nested_dict = parse_segment_input(segment_input)
         main_topic = list(nested_dict.keys())
-        s_segment = "By " + ",\nBy ".join(main_topic)
+        s_segment = "By " + "\nBy ".join(main_topic)
         user_segment = "By " + ", By ".join(main_topic)
 
         # Generate context
@@ -1032,7 +1060,7 @@ def generate_ppt():
         table_taxonomy = {
             f"BY {key.upper()}": list(value.keys()) for key, value in nested_dict.items()
         }
-
+       
         # --- Slide Data Dictionary ---
         slide_data = {
             0: {
@@ -1085,31 +1113,33 @@ def generate_ppt():
             },
             14: {
                 "heading": headline_2,
-                "amount_1": f"{rev_current} {value_in.upper()} {cur}",
+                "amount_1": f"{cur} {rev_current} {value_in.upper()} ",
                 "amount_2": f"{rev_future} {value_in.upper()} {cur}",
             },
             15:  {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year}    FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
             },
             17: {"industry_title": industry_title, "para": para_14},
             18: {"industry_title": industry_title_1, "para": para_15},
             20:  {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
-            },
-            21: {
-                "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
-                "types": s_segment,
+                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "default_kmi": default_kmi_bullets,
+                "user_kmi": user_kmi_bullets,
             },
             22: {
-                "heading": headline,
-                "type_1": main_topic[0] if main_topic else "Type 1",
-                "timeline": historical_year,
-                "cur": f"{cur} {value_in}",
+                "heading": headline_2,  
+                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "types": s_segment,
             },
             23: {
+                "heading":  headline_2,
+                "type_1": main_topic[0].upper() if main_topic else "Type 1",
+                "timeline": "2019-2032",
+                "cur": f"{cur.upper()} {value_in.upper()}",
+            },
+            24: {
                 "2_heading": headline_2,
                 "timeline": f"Historic Year {historical_year} and Forecast to {forecast_year}",
             },
@@ -1204,7 +1234,7 @@ def generate_ppt():
         add_toc_to_slides(prs, toc_data_levels, toc_slide_indices)
 
         # Step 5: Add tables and charts
-        target_slide_indices = [22, 25, 26]
+        target_slide_indices = [23, 25, 26]
         graph_table = list(nested_dict[main_topic[0]].keys()) if main_topic else []
         total_rows = len(graph_table)
         
