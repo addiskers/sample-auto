@@ -1375,7 +1375,7 @@ def generate_ppt():
                 # Table placement
                 left = Inches(0.45)
                 top = Inches(4.05)
-                width = Inches(9)
+                width = Inches(8.7)
                 height = Inches(0.72 + num_rows * 0.3)
                 table = slide.shapes.add_table(num_rows, num_cols, left, top, width, height).table
 
@@ -1398,7 +1398,7 @@ def generate_ppt():
                         run = para.add_run()
                     
                     if col_index != num_cols - 1:
-                        run.font.size = Pt(6)
+                        run.font.size = Pt(5.7)
                         cell.text_frame.word_wrap = False
                     else:
                         run.font.size = Pt(8)
