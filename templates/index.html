@@ -358,20 +358,93 @@
             font-size: 1rem;
         }
         
-        .loading-state {
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
             display: none;
-            margin-top: 1.5rem;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 3rem;
             text-align: center;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            animation: modalSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .modal-icon.loading {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+        }
+        
+        .modal-icon.success {
+            background: linear-gradient(135deg, var(--success) 0%, #047857 100%);
+        }
+        
+        .modal-icon.error {
+            background: linear-gradient(135deg, var(--error) 0%, #b91c1c 100%);
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .modal-text {
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
         }
         
         .loading-spinner {
-            width: 2rem;
-            height: 2rem;
-            border: 2px solid var(--border);
-            border-top: 2px solid var(--primary-color);
+            width: 3rem;
+            height: 3rem;
+            border: 3px solid #e5e7eb;
+            border-top: 3px solid var(--primary-color);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 1rem;
+            margin: 0 auto 1.5rem;
         }
         
         @keyframes spin {
@@ -379,9 +452,62 @@
             100% { transform: rotate(360deg); }
         }
         
-        .loading-text {
-            color: var(--text-secondary);
-            font-size: 0.875rem;
+        .stopwatch {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            font-family: 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', monospace;
+            margin: 1rem 0;
+            letter-spacing: 0.05em;
+        }
+        
+        .modal-btn {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.9375rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 100px;
+        }
+        
+        .modal-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+        }
+        
+        .modal-btn.success {
+            background: linear-gradient(135deg, var(--success) 0%, #047857 100%);
+        }
+        
+        .modal-btn.success:hover {
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        
+        .download-link {
+            color: #059669;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            border: 2px solid #059669;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+        
+        .download-link i {
+            margin-right: 0.5rem;
+        }
+        
+        .download-link:hover {
+            background: #059669;
+            color: white;
+            text-decoration: none;
         }
         
         .status-message {
@@ -405,23 +531,6 @@
         
         .status-message.show {
             display: block;
-        }
-        
-        .download-link {
-            color: #059669;
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            margin-top: 0.5rem;
-        }
-        
-        .download-link i {
-            margin-right: 0.25rem;
-        }
-        
-        .download-link:hover {
-            text-decoration: underline;
         }
         
         @media (max-width: 768px) {
@@ -451,6 +560,15 @@
             
             .form-group.half-width {
                 grid-column: span 1;
+            }
+            
+            .modal {
+                padding: 2rem;
+                max-width: 350px;
+            }
+            
+            .stopwatch {
+                font-size: 1.75rem;
             }
         }
     </style>
@@ -712,11 +830,6 @@ Tesla Inc.</div>
                         Generate Report
                     </button>
                     
-                    <div class="loading-state">
-                        <div class="loading-spinner"></div>
-                        <div class="loading-text">Processing your request... This may take several minutes.</div>
-                    </div>
-                    
                     <div class="status-message success">
                         <strong>Report Generated Successfully</strong><br>
                         Your comprehensive market analysis report is ready for download.
@@ -736,7 +849,107 @@ Tesla Inc.</div>
         </div>
     </div>
 
+    <!-- Modal Overlay -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="modal">
+            <!-- Loading State -->
+            <div id="loadingModal">
+                <div class="modal-icon loading">
+                    <i class="fas fa-cogs"></i>
+                </div>
+                <div class="loading-spinner"></div>
+                <h3 class="modal-title">Generating Report</h3>
+                <p class="modal-text">Processing your market analysis... Please wait while we compile your comprehensive report.</p>
+                <div class="stopwatch" id="stopwatch">00:00</div>
+            </div>
+            
+            <!-- Success State -->
+            <div id="successModal" style="display: none;">
+                <div class="modal-icon success">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3 class="modal-title">Report Generated Successfully!</h3>
+                <p class="modal-text">Your comprehensive market analysis report has been generated and is ready for download.</p>
+                <div class="stopwatch" id="finalTime">00:00</div>
+                <a href="#" id="modalDownloadLink" class="download-link">
+                    <i class="fas fa-download"></i>
+                    Download Report
+                </a>
+                <br><br>
+                <button class="modal-btn success" onclick="closeModal()">OK</button>
+            </div>
+            
+            <!-- Error State -->
+            <div id="errorModal" style="display: none;">
+                <div class="modal-icon error">
+                    <i class="fas fa-times"></i>
+                </div>
+                <h3 class="modal-title">Generation Failed</h3>
+                <p class="modal-text" id="modalErrorText">An error occurred during report generation. Please verify your inputs and try again.</p>
+                <div class="stopwatch" id="errorTime">00:00</div>
+                <button class="modal-btn" onclick="closeModal()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        let startTime;
+        let timerInterval;
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        }
+        
+        function startStopwatch() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('stopwatch').textContent = formatTime(elapsed);
+            }, 1000);
+        }
+        
+        function stopStopwatch() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                const elapsed = Math.floor((Date.now() - startTime) / 1000);
+                return formatTime(elapsed);
+            }
+            return '00:00';
+        }
+        
+        function showModal() {
+            document.getElementById('modalOverlay').classList.add('show');
+            document.getElementById('loadingModal').style.display = 'block';
+            document.getElementById('successModal').style.display = 'none';
+            document.getElementById('errorModal').style.display = 'none';
+            startStopwatch();
+        }
+        
+        function showSuccess(downloadUrl) {
+            const finalTime = stopStopwatch();
+            document.getElementById('loadingModal').style.display = 'none';
+            document.getElementById('successModal').style.display = 'block';
+            document.getElementById('finalTime').textContent = finalTime;
+            document.getElementById('modalDownloadLink').href = downloadUrl;
+        }
+        
+        function showError(errorMessage) {
+            const finalTime = stopStopwatch();
+            document.getElementById('loadingModal').style.display = 'none';
+            document.getElementById('errorModal').style.display = 'block';
+            document.getElementById('modalErrorText').textContent = errorMessage;
+            document.getElementById('errorTime').textContent = finalTime;
+        }
+        
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+        }
+        
         function validateSegmentHierarchy(segmentText) {
             const lines = segmentText.trim().split('\n');
             const errors = [];
@@ -914,12 +1127,8 @@ Tesla Inc.</div>
             // Ensure headline_2 is synced
             document.getElementById('headline_2').value = document.getElementById('headline').value;
             
-            // Show loading state
-            const submitBtn = document.querySelector('.submit-btn');
-            const loadingState = document.querySelector('.loading-state');
-            
-            submitBtn.disabled = true;
-            loadingState.style.display = 'block';
+            // Show modal with loading state
+            showModal();
             
             const formData = new FormData(this);
             
@@ -931,18 +1140,20 @@ Tesla Inc.</div>
                 
                 if (response.ok) {
                     const result = await response.json();
-                    document.querySelector('.status-message.success').classList.add('show');
-                    document.getElementById('downloadLink').href = `/download/${result.filename}`;
+                    showSuccess(`/download/${result.filename}`);
                 } else {
                     const error = await response.json();
                     throw new Error(error.message || 'Report generation failed');
                 }
             } catch (error) {
-                document.querySelector('.status-message.error').classList.add('show');
-                document.getElementById('errorText').textContent = error.message;
-            } finally {
-                submitBtn.disabled = false;
-                loadingState.style.display = 'none';
+                showError(error.message);
+            }
+        });
+        
+        // Close modal when clicking outside
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
             }
         });
     </script>

@@ -26,6 +26,8 @@ from pptx.enum.chart import (
 )
 from enum import Enum
 from typing import Optional, Dict, List, Any
+import concurrent.futures
+import threading
 
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  
@@ -90,6 +92,52 @@ class AIService:
             return self._generate_research_journals(context)
         elif request_type == AIRequestType.INDUSTRY_ASSOCIATIONS:
             return self._generate_industry_associations(context)
+
+    def generate_content_parallel(self, ai_context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Generate AI content in parallel while respecting dependencies
+        """
+        results = {}
+        
+        # Phase 1: Independent calls that can run in parallel
+        phase1_tasks = {
+            'executive_summary': (AIRequestType.EXECUTIVE_SUMMARY, ai_context),
+            'market_enablers': (AIRequestType.MARKET_ENABLERS, ai_context),
+            'industry_expansion': (AIRequestType.INDUSTRY_EXPANSION, ai_context),
+            'investment_challenges': (AIRequestType.INVESTMENT_CHALLENGES, ai_context),
+            'research_journals': (AIRequestType.RESEARCH_JOURNALS, ai_context),
+            'industry_associations': (AIRequestType.INDUSTRY_ASSOCIATIONS, ai_context),
+            'company_info': (AIRequestType.COMPANY_INFO, ai_context)
+        }
+        
+        # Execute phase 1 in parallel
+        with concurrent.futures.ThreadPoolExecutor(max_workers=7) as executor:
+            future_to_key = {
+                executor.submit(self.generate_content, request_type, context): key
+                for key, (request_type, context) in phase1_tasks.items()
+            }
+            
+            for future in concurrent.futures.as_completed(future_to_key):
+                key = future_to_key[future]
+                try:
+                    results[key] = future.result()
+                except Exception as exc:
+                    print(f'{key} generated an exception: {exc}')
+                    # Keep original fallback behavior for critical errors
+                    if key == 'executive_summary':
+                        results[key] = f"The {ai_context['headline']} is valued at {ai_context['cur']} {ai_context['rev_current']} {ai_context['value_in']} in {ai_context['base_year']}, and is expected to reach {ai_context['cur']} {ai_context['rev_future']} {ai_context['value_in']} by {ai_context['forecast_year']}. The market shows a steady CAGR of {ai_context.get('cagr')}% from 2025 to 2032."
+                    else:
+                        raise exc
+        
+        # Phase 2: Dependent call that needs the title from industry_expansion
+        industry_title = results['industry_expansion']['title']
+        results['industry_expansion_1'] = self.generate_content(
+            AIRequestType.INDUSTRY_EXPANSION_1, 
+            ai_context, 
+            industry_title
+        )
+        
+        return results
     
     def _generate_executive_summary(self, context: Dict[str, Any]) -> str:
         first_line = (f"The {context['headline']} is valued at {context['cur']} {context['rev_current']} "
@@ -237,6 +285,21 @@ class AIService:
             print(f"OpenAI API error: {api_error}")
             return self._get_default_company_info(context)
         
+    def _get_default_company_info(self, context: Dict[str, Any]) -> Dict[str, str]:
+        """Default company info when API fails"""
+        return {
+            "company_name": context["company_name"],
+            "headquarters": "United States",
+            "employee_count": "10,000",
+            "revenue": "5.00 billion",
+            "top_product": "Market Solutions",
+            "description_product": "Comprehensive solutions for market analysis and business intelligence services.",
+            "estd": "2000",
+            "website": "company.com",
+            "geographic_presence": "Global",
+            "ownership": "Public",
+            "short_description_company": f"{context['company_name']} provides comprehensive solutions in the {context['headline']} sector. The company offers innovative products and services to meet market demands."
+        }
 
     def _generate_research_journals(self, context: Dict[str, Any]) -> List[str]:
         """Generate research journals related to the market"""
@@ -1041,7 +1104,7 @@ def generate_ppt():
         # Generate TOC
         toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period, user_segment, kmi_items)
 
-        # Generate AI content using unified service
+        # Generate AI content using parallel processing
         ai_context = {
             'headline': headline,
             'value_in': value_in,
@@ -1054,31 +1117,34 @@ def generate_ppt():
             'main_topic': main_topic[0] if main_topic else "Type 1",
             'currency': currency.upper(),
             'cagr': cagr,
+            'company_name': company_list[0]  # Add company name to context
         }
         
-        # Generate all AI content
-        mpara_11 = ai_service.generate_content(AIRequestType.EXECUTIVE_SUMMARY, ai_context)
-        para_11 = ai_service.generate_content(AIRequestType.MARKET_ENABLERS, ai_context)
-        para_14_dict = ai_service.generate_content(AIRequestType.INDUSTRY_EXPANSION, ai_context) 
+        print("Starting parallel AI content generation...")
+        ai_results = ai_service.generate_content_parallel(ai_context)
+        print("Completed parallel AI content generation")
+        
+        # Extract results
+        mpara_11 = ai_results['executive_summary']
+        para_11 = ai_results['market_enablers']
+        para_14_dict = ai_results['industry_expansion']
         industry_title = para_14_dict['title']
-
-
-        para_14_dict_1 = ai_service.generate_content(AIRequestType.INDUSTRY_EXPANSION_1, ai_context, industry_title) 
-        para_15_dict = ai_service.generate_content(AIRequestType.INVESTMENT_CHALLENGES, ai_context)
-        research_journals = ai_service.generate_content(AIRequestType.RESEARCH_JOURNALS, ai_context)
-        industry_associations = ai_service.generate_content(AIRequestType.INDUSTRY_ASSOCIATIONS, ai_context)
+        para_14_dict_1 = ai_results['industry_expansion_1']
+        para_15_dict = ai_results['investment_challenges']
+        research_journals = ai_results['research_journals']
+        industry_associations = ai_results['industry_associations']
+        company_info = ai_results['company_info']
+        
         industry_title_1 = para_15_dict['title'] 
         industry_title_2 = para_14_dict_1['title']
         para_14_1= '\n'.join(para_14_dict_1['paragraphs'])
         para_15 = '\n'.join(para_15_dict['paragraphs'])
         para_14 = '\n'.join(para_14_dict['paragraphs'])
+        
         print(f"Generated research journals: {research_journals}")
         print(f"Generated industry associations: {industry_associations}")
-        
-        # Get company info for the first company
-        ai_context['company_name'] = company_list[0]
-        company_info = ai_service.generate_content(AIRequestType.COMPANY_INFO, ai_context)
         print(f"Generated company info: {company_info}")
+        
         # Add company profiles to TOC
         x = len(main_topic) + 6
 
@@ -1307,9 +1373,9 @@ def generate_ppt():
                 slide = prs.slides[slide_index]
 
                 # Table placement
-                left = Inches(0.53)
+                left = Inches(0.45)
                 top = Inches(4.05)
-                width = Inches(8.3)
+                width = Inches(9)
                 height = Inches(0.72 + num_rows * 0.3)
                 table = slide.shapes.add_table(num_rows, num_cols, left, top, width, height).table
 
