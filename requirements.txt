@@ -4,5 +4,4 @@ openai
 google-generativeai
 python-dotenv
 gunicorn
-pptx
 Werkzeug
