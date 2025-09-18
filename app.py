@@ -99,7 +99,6 @@ class AIService:
         """
         results = {}
         
-        # Phase 1: Independent calls that can run in parallel
         phase1_tasks = {
             'executive_summary': (AIRequestType.EXECUTIVE_SUMMARY, ai_context),
             'market_enablers': (AIRequestType.MARKET_ENABLERS, ai_context),
@@ -123,13 +122,8 @@ class AIService:
                     results[key] = future.result()
                 except Exception as exc:
                     print(f'{key} generated an exception: {exc}')
-                    # Keep original fallback behavior for critical errors
-                    if key == 'executive_summary':
-                        results[key] = f"The {ai_context['headline']} is valued at {ai_context['cur']} {ai_context['rev_current']} {ai_context['value_in']} in {ai_context['base_year']}, and is expected to reach {ai_context['cur']} {ai_context['rev_future']} {ai_context['value_in']} by {ai_context['forecast_year']}. The market shows a steady CAGR of {ai_context.get('cagr')}% from 2025 to 2032."
-                    else:
-                        raise exc
+                    raise exc
         
-        # Phase 2: Dependent call that needs the title from industry_expansion
         industry_title = results['industry_expansion']['title']
         results['industry_expansion_1'] = self.generate_content(
             AIRequestType.INDUSTRY_EXPANSION_1, 
@@ -146,18 +140,14 @@ class AIService:
                     f"The market shows a steady CAGR of {context.get('cagr')}% from 2025 to 2032.")
         
         prompt = f"Write an executive summary for {context['headline']} focusing on key market drivers, trends, and growth factors within 50 words stricly. Do not include market size or revenue figures as they are already provided. Focus on qualitative insights about market dynamics, key players, and future outlook. ( start directly from setence without any intro like 'The executive summary is...')"
-        try:
-            response = self.openai_client.chat.completions.create(
-                model="gpt-5-mini",
-                messages=[{"role": "user", "content": prompt}]
-            )
-            ai_summary = response.choices[0].message.content
-            full_summary = f"{first_line} {ai_summary}"
-            return full_summary
-            
-        except Exception as e:
-            print(f"Error generating executive summary: {e}")
-            return first_line
+        
+        response = self.openai_client.chat.completions.create(
+            model="gpt-5-mini",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        ai_summary = response.choices[0].message.content
+        full_summary = f"{first_line} {ai_summary}"
+        return full_summary
     
     def _generate_market_enablers(self, context: Dict[str, Any]) -> str:
         prompt = f'Write an executive summary about key market enablers (2 points) for {context["headline"]}, each 50 words strickly. Return a Python list like ["heading: context", "heading: context"].'
@@ -184,6 +174,7 @@ class AIService:
         )
 
         return ast.literal_eval(response.choices[0].message.content)
+    
     def _generate_industry_expansion_1(self, context: Dict[str, Any], existing_title: str = None) -> Dict[str, Any]:
         existing_title_instruction = ""
         if existing_title:
@@ -254,52 +245,26 @@ class AIService:
         employee_count should be in "X,XXX" or "XX,XXX" format and should be correct data.
         Return ONLY valid JSON, no additional text. no urls/citations for references.'''
         
-        try:
-            response = client.responses.create(
-                model="gpt-5",
-                tools=[{
-                    "type": "web_search_preview",
-                    "search_context_size": "medium",
-                }],
-                input=[
-                    {"role": "system", "content": "You are a JSON generator. Always return valid JSON and nothing else."},
-                    {"role": "user", "content": prompt}
-                ]
-            )          
-            content = response.output_text.strip()
-            
-            if content.startswith("```json"):
-                content = content[7:]
-            if content.endswith("```"):
-                content = content[:-3]
-            content = content.strip()
-            
-            try:
-                return json.loads(content)
-            except json.JSONDecodeError as json_error:
-                print(f"JSON decode error: {json_error}")
-                print(f"Response content: {content}")
-                return self._get_default_company_info(context)
-                
-        except Exception as api_error:
-            print(f"OpenAI API error: {api_error}")
-            return self._get_default_company_info(context)
+        response = client.responses.create(
+            model="gpt-5",
+            tools=[{
+                "type": "web_search_preview",
+                "search_context_size": "medium",
+            }],
+            input=[
+                {"role": "system", "content": "You are a JSON generator. Always return valid JSON and nothing else."},
+                {"role": "user", "content": prompt}
+            ]
+        )          
+        content = response.output_text.strip()
         
-    def _get_default_company_info(self, context: Dict[str, Any]) -> Dict[str, str]:
-        """Default company info when API fails"""
-        return {
-            "company_name": context["company_name"],
-            "headquarters": "United States",
-            "employee_count": "10,000",
-            "revenue": "5.00 billion",
-            "top_product": "Market Solutions",
-            "description_product": "Comprehensive solutions for market analysis and business intelligence services.",
-            "estd": "2000",
-            "website": "company.com",
-            "geographic_presence": "Global",
-            "ownership": "Public",
-            "short_description_company": f"{context['company_name']} provides comprehensive solutions in the {context['headline']} sector. The company offers innovative products and services to meet market demands."
-        }
+        if content.startswith("```json"):
+            content = content[7:]
+        if content.endswith("```"):
+            content = content[:-3]
+        content = content.strip()
+        
+        return json.loads(content)
 
     def _generate_research_journals(self, context: Dict[str, Any]) -> List[str]:
         """Generate research journals related to the market"""
@@ -387,12 +352,11 @@ class AIService:
         if len(associations) < 5:
             associations.extend(default_associations[len(associations):5])
         
-        return associations[:5]  # Return exactly 5 associations
+        return associations[:5]  
 
 # Initialize AI Service globally
 ai_service = AIService(client, api_key_gemini)
 
-# --- PRESENTATION MODIFICATION CLASSES & FUNCTIONS ---
 class TaxonomyBoxGenerator:
     COLORS = {
         "purple": RGBColor(0x31, 0x09, 0x7E),
@@ -404,18 +368,17 @@ class TaxonomyBoxGenerator:
         "light_gray": RGBColor(0xF2, 0xF2, 0xF2),
         "text_dark": RGBColor(0, 0, 0),
         # Add your new colors
-        "new_blue": RGBColor(0x00, 0x70, 0xC0),      # Blue #0070C0
-        "light_green": RGBColor(0x92, 0xD0, 0x50),   # Light Green #92D050
-        "yellow_orange": RGBColor(0xFF, 0xC0, 0x00), # Orange #FFC000
-        "dark_red": RGBColor(0xC0, 0x00, 0x00),      # Dark Red #C00000
-        "rose": RGBColor(0xF8, 0x78, 0x84),          # Rose #F87884
-        "light_black": RGBColor(0x7F, 0x7F, 0x7F),   # Black (Light) #7F7F7F
-        "dark_teal": RGBColor(0x00, 0xA8, 0x8F),     # Dark Teal #00A88F
-        "turquoise": RGBColor(0x33, 0xC5, 0xF0),     # Turquoise #33C5F0
-        "new_purple": RGBColor(0x59, 0x46, 0x8F),    # Purple #59468F
+        "new_blue": RGBColor(0x00, 0x70, 0xC0),     
+        "light_green": RGBColor(0x92, 0xD0, 0x50),   
+        "yellow_orange": RGBColor(0xFF, 0xC0, 0x00),
+        "dark_red": RGBColor(0xC0, 0x00, 0x00),     
+        "rose": RGBColor(0xF8, 0x78, 0x84),         
+        "light_black": RGBColor(0x7F, 0x7F, 0x7F), 
+        "dark_teal": RGBColor(0x00, 0xA8, 0x8F),   
+        "turquoise": RGBColor(0x33, 0xC5, 0xF0),    
+        "new_purple": RGBColor(0x59, 0x46, 0x8F),   
     }
     
-    # Define color cycle for box headers
     BOX_HEADER_COLORS = [
         COLORS["new_blue"],      # Blue #0070C0
         COLORS["light_green"],   # Light Green #92D050
@@ -997,6 +960,18 @@ def create_chart_on_slide(slide: Any, data: List[List], chart_columns: List[str]
     cat_axis.tick_label_position = XL_TICK_LABEL_POSITION.LOW
 
 
+def clean_filename(filename):
+    """Clean filename to be safe for filesystem"""
+    invalid_chars = '<>:"/\\|?*'
+    for char in invalid_chars:
+        filename = filename.replace(char, '_')
+    
+    filename = ' '.join(filename.split())  
+    filename = filename[:100]  
+    
+    return filename
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -1104,7 +1079,6 @@ def generate_ppt():
         # Generate TOC
         toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period, user_segment, kmi_items)
 
-        # Generate AI content using parallel processing
         ai_context = {
             'headline': headline,
             'value_in': value_in,
@@ -1117,7 +1091,7 @@ def generate_ppt():
             'main_topic': main_topic[0] if main_topic else "Type 1",
             'currency': currency.upper(),
             'cagr': cagr,
-            'company_name': company_list[0]  # Add company name to context
+            'company_name': company_list[0] 
         }
         
         print("Starting parallel AI content generation...")
@@ -1305,7 +1279,6 @@ def generate_ppt():
             }), 500
             
         prs = Presentation("testppt.pptx")
-        # Step 1: Replace text in presentation
         for slide in prs.slides:
             data = slide_data.get(prs.slides.index(slide), {})
             for shape in slide.shapes:
@@ -1470,9 +1443,10 @@ def generate_ppt():
                         Inches(0.4), Inches(1.1), Inches(12.5), Inches(2.8)
                     )
 
-        # Save the final presentation
+        # Save the final presentation with market name as filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"report_{timestamp}.pptx"
+        clean_market_name = clean_filename(headline)
+        filename = f"{clean_market_name}_{timestamp}.pptx"
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
         print(f"Saving the final presentation to '{filepath}'...")
@@ -1493,28 +1467,66 @@ def generate_ppt():
         }), 500
 
 
-@app.route('/download/<filename>')
+@app.route('/download/<path:filename>')
 def download_file(filename):
     try:
-        safe_filename = secure_filename(filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], safe_filename)
-        return send_file(filepath, as_attachment=True)
+        import urllib.parse
+        decoded_filename = urllib.parse.unquote(filename)
+        
+        if '..' in decoded_filename or '/' in decoded_filename or '\\' in decoded_filename:
+            return jsonify({'error': 'Invalid filename'}), 400
+        
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], decoded_filename)
+        
+        print(f"Looking for file: {filepath}")
+        print(f"File exists: {os.path.exists(filepath)}")
+        
+        if not os.path.exists(filepath):
+            try:
+                available_files = os.listdir(app.config['UPLOAD_FOLDER'])
+                print(f"Available files: {available_files}")
+            except:
+                print("Could not list available files")
+            return jsonify({'error': 'File not found'}), 404
+        
+        def remove_file_after_send(filepath):
+            def remove_file(response):
+                try:
+                    if os.path.exists(filepath):
+                        os.remove(filepath)
+                        print(f"Temporary file deleted: {filepath}")
+                except Exception as e:
+                    print(f"Error deleting file: {e}")
+                return response
+            return remove_file
+        
+        response = send_file(filepath, as_attachment=True, download_name=decoded_filename)
+        
+        @response.call_on_close
+        def delete_file():
+            try:
+                if os.path.exists(filepath):
+                    os.remove(filepath)
+                    print(f"Temporary file deleted after download: {filepath}")
+            except Exception as e:
+                print(f"Error deleting file after download: {e}")
+        
+        return response
+        
     except Exception as e:
-        return jsonify({'error': 'File not found'}), 404
+        print(f"Download error: {e}")
+        return jsonify({'error': 'File download failed', 'details': str(e)}), 500
 
 
 if __name__ == '__main__':
-    # Create .env file if it doesn't exist
     if not os.path.exists('.env'):
         with open('.env', 'w') as f:
             f.write('OPENAI_API_KEY=your_openai_api_key_here\n')
             f.write('GEMINI_API_KEY=your_gemini_api_key_here\n')
         print("Created .env file. Please add your API keys.")
     
-    # Create HTML template if it doesn't exist
     if not os.path.exists('templates/index.html'):
         os.makedirs('templates', exist_ok=True)
         print("Please save the HTML content from the artifact to templates/index.html")
     
-    # Run the Flask app
     app.run(host="0.0.0.0",debug=True, port=5000,)
