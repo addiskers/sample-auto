@@ -97,7 +97,7 @@ class AIService:
                     f"{context['cur']} {context['rev_future']} {context['value_in']} by {context['forecast_year']}. "
                     f"The market shows a steady CAGR of {context.get('cagr')}% from 2025 to 2032.")
         
-        prompt = f"Write an executive summary for {context['headline']} focusing on key market drivers, trends, and growth factors within 100 words. Do not include market size or revenue figures as they are already provided. Focus on qualitative insights about market dynamics, key players, and future outlook. ( start directly from setence without any intro like 'The executive summary is...')"
+        prompt = f"Write an executive summary for {context['headline']} focusing on key market drivers, trends, and growth factors within 80 words stricly. Do not include market size or revenue figures as they are already provided. Focus on qualitative insights about market dynamics, key players, and future outlook. ( start directly from setence without any intro like 'The executive summary is...')"
         try:
             response = self.openai_client.chat.completions.create(
                 model="gpt-5-mini",
@@ -112,7 +112,7 @@ class AIService:
             return first_line
     
     def _generate_market_enablers(self, context: Dict[str, Any]) -> str:
-        prompt = f'Write an executive summary about key market enablers (2 points) for {context["headline"]}, each 80 words. Return a Python list like ["heading: context", "heading: context"].'
+        prompt = f'Write an executive summary about key market enablers (2 points) for {context["headline"]}, each 60 words strickly. Return a Python list like ["heading: context", "heading: context"].'
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}]
@@ -727,7 +727,7 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
         "3.3. Segmental Overview": 1,
         "4. Market Dynamics & Outlook": 0,
         "4.1. Macro-Economic Indicators​": 1,
-        "4.2. Drivers & Opportunitiess": 1,
+        "4.2. Drivers & Opportunities": 1,
         "4.3. Restraints & Challenges": 1,
         "4.4. Supply Side Trends": 1,
         "4.5. Demand Side Trends": 1,
@@ -802,7 +802,7 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
         f"{x}.5.1. GCC Countries": 2,
         f"{x}.5.2. South Africa": 2,
         f"{x}.5.3. Rest of Middle East & Africa": 2,
-        f"{x+1}. Competitive Lapscape": 0,
+        f"{x+1}. Competitive Landscape": 0,
         f"{x+1}.1. Competitive Dashboard": 1,
         f"{x+1}.2. Market Positioning of Key Players, 2024": 1,
         f"{x+1}.3. Strategies Adopted by Key Market Players": 1,
@@ -1106,7 +1106,7 @@ def generate_ppt():
             },
             12: {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
             },
             13: {
                 "heading_2": f"{headline_2} SIZE, ({currency.upper()})",
@@ -1232,7 +1232,7 @@ def generate_ppt():
 
         # Step 3: Perform text replacements in tables on specific slides
         print("Performing text replacements inside tables...")
-        table_slide_indices = [10, 16, 17,18,19,21, 23, 24, 25, 26,27, 28,29,30,31, 32, 33,34,35]
+        table_slide_indices = [10,13, 16, 17,18,19,21, 23, 24, 25, 26,27, 28,29,30,31, 32, 33,34,35]
         replace_text_in_tables(prs, table_slide_indices, slide_data)
 
         # Step 4: Add and populate the Table of Contents slides
