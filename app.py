@@ -97,7 +97,7 @@ class AIService:
                     f"{context['cur']} {context['rev_future']} {context['value_in']} by {context['forecast_year']}. "
                     f"The market shows a steady CAGR of {context.get('cagr')}% from 2025 to 2032.")
         
-        prompt = f"Write an executive summary for {context['headline']} focusing on key market drivers, trends, and growth factors within 80 words stricly. Do not include market size or revenue figures as they are already provided. Focus on qualitative insights about market dynamics, key players, and future outlook. ( start directly from setence without any intro like 'The executive summary is...')"
+        prompt = f"Write an executive summary for {context['headline']} focusing on key market drivers, trends, and growth factors within 50 words stricly. Do not include market size or revenue figures as they are already provided. Focus on qualitative insights about market dynamics, key players, and future outlook. ( start directly from setence without any intro like 'The executive summary is...')"
         try:
             response = self.openai_client.chat.completions.create(
                 model="gpt-5-mini",
@@ -112,7 +112,7 @@ class AIService:
             return first_line
     
     def _generate_market_enablers(self, context: Dict[str, Any]) -> str:
-        prompt = f'Write an executive summary about key market enablers (2 points) for {context["headline"]}, each 60 words strickly. Return a Python list like ["heading: context", "heading: context"].'
+        prompt = f'Write an executive summary about key market enablers (2 points) for {context["headline"]}, each 50 words strickly. Return a Python list like ["heading: context", "heading: context"].'
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}]
@@ -146,7 +146,7 @@ class AIService:
             f'Include a clear heading for the driver. '
             f'Return the output strictly as a Python dictionary with the following structure: '
             f'{{"title": "7–10 words", "paragraphs": ["paragraph1", "paragraph2", "paragraph3","parapragh4"]}}. '
-            f'Each paragraph should be 80 words strict, qualitative in tone give 4 paragraphs, '
+            f'Each paragraph should be 80 words strict, qualitative in tone ,give 4 paragraphs must, '
             f'and include real-world examples and facts. '
             f'Do not include market size, numbers, or links. '
             f'Focus on a unique aspect not covered by other drivers.'
@@ -165,7 +165,7 @@ class AIService:
             f'Include a clear heading for the driver. '
             f'Return the output strictly as a Python dictionary with the following structure: '
             f'{{"title": "7–10 words", "paragraphs": ["paragraph1", "paragraph2", "paragraph3","parapragh4"]}}. '
-            f'Each paragraph should be 80 words strict, qualitative in tone, '
+            f'Each paragraph should be 80 words strict, qualitative in tone, give 4 paragraphs must'
             f'and include real-world examples and facts. '
             f'Do not include market size, numbers, or links.'
         )
@@ -193,24 +193,25 @@ class AIService:
             "ownership": "",
             "short_description_company": ""
         }}
-        geographic_presence only choose between Region or Global
-        The short_description_company should be around 100 words. I want you to act as a Research Analyst and give Company Overview of "{context["company_name"]}" in around 10-11 lines (In one paragraph only) which should not talk about Headquarter Country, Establishment/Foundation Year, Number of Employees or Revenue and should not use any marketing/promotional words like, largest, prominent, diversified, recognized, among others (You can talk about its product/service related to {context["headline"]}, market presence, business strategy, recent developments, etc).
+        geographic_presence only choose between from  Global, North America, Europe, Asia Pacific, Latin America, Middle East & Africa
+        The short_description_company should be around 100 words. I want you to act as a Research Analyst and give Company Overview of "{context["company_name"]}" in around 10-11 lines (In one paragraph only) which should not talk about Headquarter Country, Establishment/Foundation Year, Number of Employees or Revenue and should not use any marketing/promotional words like, largest, prominent, diversified, recognized, among others (You can talk about its product/service related to {context["headline"]}, market presence, business strategy, recent developments, etc) like this for tone:
+        Schlumberger Ltd (SLB) provides technology for reservoir characterization, production, drilling and processing to the oil and gas industry. The company supplies its products and services to the industry, from exploration through production and integrated pipeline solutions for hydrocarbon recovery. SLB's products and services include open-hole and cased-hole wireline logging; drilling services; well completion services, including well testing and artificial lift; well services such as cementing, coiled tubing, stimulations, and sand control; interpretation and consulting services; and integrated project management. The company has an operational presence in North America, Latin America, Europe and Africa, the Middle East and Asia. SLB is headquartered in Houston, Texas, the US..
 .       website should be the official website no Https ot http.
-        revenue should be in the format " X billion" or " X million" and should be correct 2024 data in USD .
+        revenue should be in the format " X.XX billion" or " X.XX million" and should be correct 2024 data in USD .
         ownership should be either "Public" or "Private".
         top product should be a product or service relevant to the headline market.
         description_product should be 50 words describing the top product.
         estd is year of establishment should be correct data.
         headquarters should be "Country" format and should be correct data.
         employee_count should be in "X,XXX" or "XX,XXX" format and should be correct data.
-        Return ONLY valid JSON, no additional text.'''
+        Return ONLY valid JSON, no additional text. no urls/citations for references.'''
         
         try:
             response = client.responses.create(
                 model="gpt-5",
                 tools=[{
                     "type": "web_search_preview",
-                    "search_context_size": "low",
+                    "search_context_size": "medium",
                 }],
                 input=[
                     {"role": "system", "content": "You are a JSON generator. Always return valid JSON and nothing else."},
@@ -339,8 +340,30 @@ class TaxonomyBoxGenerator:
         "white": RGBColor(255, 255, 255),
         "light_gray": RGBColor(0xF2, 0xF2, 0xF2),
         "text_dark": RGBColor(0, 0, 0),
+        # Add your new colors
+        "new_blue": RGBColor(0x00, 0x70, 0xC0),      # Blue #0070C0
+        "light_green": RGBColor(0x92, 0xD0, 0x50),   # Light Green #92D050
+        "yellow_orange": RGBColor(0xFF, 0xC0, 0x00), # Orange #FFC000
+        "dark_red": RGBColor(0xC0, 0x00, 0x00),      # Dark Red #C00000
+        "rose": RGBColor(0xF8, 0x78, 0x84),          # Rose #F87884
+        "light_black": RGBColor(0x7F, 0x7F, 0x7F),   # Black (Light) #7F7F7F
+        "dark_teal": RGBColor(0x00, 0xA8, 0x8F),     # Dark Teal #00A88F
+        "turquoise": RGBColor(0x33, 0xC5, 0xF0),     # Turquoise #33C5F0
+        "new_purple": RGBColor(0x59, 0x46, 0x8F),    # Purple #59468F
     }
-    CATEGORY_COLORS = {"DEFAULT": COLORS["purple"], "BY REGION": COLORS["dark_blue"]}
+    
+    # Define color cycle for box headers
+    BOX_HEADER_COLORS = [
+        COLORS["new_blue"],      # Blue #0070C0
+        COLORS["light_green"],   # Light Green #92D050
+        COLORS["yellow_orange"], # Orange #FFC000
+        COLORS["dark_red"],      # Dark Red #C00000
+        COLORS["rose"],          # Rose #F87884
+        COLORS["light_black"],   # Black (Light) #7F7F7F
+        COLORS["dark_teal"],     # Dark Teal #00A88F
+        COLORS["turquoise"],     # Turquoise #33C5F0
+        COLORS["new_purple"],    # Purple #59468F
+    ]
 
     def __init__(self, presentation):
         self.prs = presentation
@@ -355,9 +378,10 @@ class TaxonomyBoxGenerator:
         self.h_spacing, self.v_spacing = Inches(0.2), Inches(0.2)
 
     def _add_category_box(
-        self, slide, category, content, left, top, max_width, max_height
+        self, slide, category, content, left, top, max_width, max_height, color_index
     ):
-        header_color = self.CATEGORY_COLORS.get(category, self.COLORS["purple"])
+        header_color = self.BOX_HEADER_COLORS[color_index % len(self.BOX_HEADER_COLORS)]
+        
         header_height = Inches(0.3)
         header = slide.shapes.add_shape(
             MSO_SHAPE.ROUNDED_RECTANGLE, left, top, max_width, header_height
@@ -462,6 +486,7 @@ class TaxonomyBoxGenerator:
         ) / boxes_per_row
 
         rows, current_row, current_row_width = [], [], 0
+        color_index = 0         
         for category, hierarchy in taxonomy_data.items():
             item_count = len(hierarchy)
             box_height = max(
@@ -471,9 +496,16 @@ class TaxonomyBoxGenerator:
                 rows.append(current_row)
                 current_row, current_row_width = [], 0
             current_row.append(
-                {"category": category, "content": hierarchy, "height": box_height}
+                {
+                    "category": category, 
+                    "content": hierarchy, 
+                    "height": box_height,
+                    "color_index": color_index  
+                }
             )
             current_row_width += box_width + self.h_spacing
+            color_index += 1  
+            
         if current_row:
             rows.append(current_row)
 
@@ -492,6 +524,7 @@ class TaxonomyBoxGenerator:
                     current_top,
                     box_width,
                     box["height"],
+                    box["color_index"]  
                 )
             current_top += row_max_height + self.v_spacing
 
@@ -777,7 +810,7 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
 
     x = len(list(nested_dict.keys())) + 6
     toc_end_levels = {
-        f"{x}. {headline} Size by Region (2019-2032)": 0,
+        f"{x}. Global {headline} Size by Region (2019-2032)": 0,
         f"{x}.1. North America ({user_segment})": 1,
         f"{x}.1.1. US": 2,
         f"{x}.1.2. Canada": 2,
@@ -819,7 +852,7 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
     for i in toc_slide_indices:
         slide = prs.slides[i]
         table_shape = slide.shapes.add_table(
-            17, 2, Inches(3.1), Inches(0.3), Inches(10), Inches(6.5)
+            17, 2, Inches(2.8), Inches(0.5), Inches(10), Inches(6)
         )
         table = table_shape.table
         for row in table.rows:
@@ -847,7 +880,7 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
                 para = cell.text_frame.paragraphs[0]
                 para.text = "          " * level + key
                 font = para.font
-                font.color.rgb, font.size, font.name = RGBColor(0, 0, 0), Pt(11), "Pooppins"
+                font.color.rgb, font.size, font.name = RGBColor(0, 0, 0), Pt(11), "Poppins"
                 if key.startswith("The following companies") or key.startswith("Note :"):
                     font.size = Pt(9)
                     font.color.rgb, font.bold = RGBColor(112, 48, 160), True
@@ -937,6 +970,7 @@ def generate_ppt():
         # Extract form data
         headline = form_data['headline']
         headline_2 = headline.upper()
+        headline_3 = headline_2.replace("Global", "").strip()
         historical_year = "2019-2023"
         base_year = "2024"
         forecast_year = "2032"
@@ -1151,13 +1185,13 @@ def generate_ppt():
             },
             26: {"heading": headline_2, "timeline": "2019-2032", "cur": f"{cur.upper()} {value_in.upper()}"},
             27: {
-                "2_heading": headline_2,
+                "2_heading": headline_3.upper(),
                 "type_1": main_topic[0].upper() if main_topic else "Type 1",
                 "timeline": "2019-2032",
                 "cur": f"{cur.upper()} {value_in.upper()}",
             },
             28: {
-                "2_heading": headline_2,
+                "2_heading": headline_3.upper(),
                 "type_1": main_topic[0].upper() if main_topic else "Type 1",
                 "timeline": "2019-2032",
                 "cur": f"{cur.upper()} {value_in.upper()}",
@@ -1180,7 +1214,7 @@ def generate_ppt():
                 "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
             },
             33: {
-                "company": company_info["company_name"],
+                "company": company_info["company_name"].upper(),
                 "e": company_info["employee_count"],
                 "ownership": company_info["ownership"],
                 "h": company_info["headquarters"],
@@ -1262,7 +1296,7 @@ def generate_ppt():
 
         # Font family mappings
         font_mapping = {
-            "header": "Poppins",
+            "header": "Poppins Bold",
             "first_col": "Poppins Bold",
             "values": "Poppins Medium",
         }
@@ -1273,34 +1307,40 @@ def generate_ppt():
                 slide = prs.slides[slide_index]
 
                 # Table placement
-                left = Inches(0.4)
+                left = Inches(0.53)
                 top = Inches(4.05)
-                width = Inches(8)
+                width = Inches(8.3)
                 height = Inches(0.72 + num_rows * 0.3)
                 table = slide.shapes.add_table(num_rows, num_cols, left, top, width, height).table
 
                 # Populate header row
                 for col_index, header in enumerate(columns):
                     cell = table.cell(0, col_index)
-                    cell.text = header.replace("\n", " ").strip()
                     cell.fill.solid()
                     cell.fill.fore_color.rgb = header_rgb
 
+                    cell.text_frame.clear()
                     para = cell.text_frame.paragraphs[0]
+                    para.text = header.replace("\n", " ").strip()
+                    
                     para.alignment = PP_ALIGN.CENTER
-                    run = para.runs[0] if para.runs else para.add_run()
+                    cell.vertical_anchor = MSO_ANCHOR.MIDDLE  
+                    
+                    if para.runs:
+                        run = para.runs[0]
+                    else:
+                        run = para.add_run()
+                    
                     if col_index != num_cols - 1:
-                        run.font.size = Pt(5.7)
+                        run.font.size = Pt(6)
+                        cell.text_frame.word_wrap = False
                     else:
                         run.font.size = Pt(8)
-                    if col_index != num_cols - 1:
-                        cell.text_frame.word_wrap = False
-                    cell.text_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
+                    
                     run.font.bold = True
                     run.font.color.rgb = RGBColor(255, 255, 255)
                     run.font.name = font_mapping["header"]
 
-                    set_cell_border(cell)
 
                 # Populate data rows
                 for row_index, label in enumerate(row_labels, start=1):
