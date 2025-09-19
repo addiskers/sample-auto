@@ -4,10 +4,6 @@ import json
 import ast
 import re
 import traceback
-import time
-import logging
-import functools
-import uuid
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -33,85 +29,6 @@ from typing import Optional, Dict, List, Any
 import concurrent.futures
 import threading
 
-# Configure logging
-def setup_logging():
-    """Setup comprehensive logging configuration"""
-    log_format = '%(asctime)s - %(name)s - %(levelname)s - [%(request_id)s] - %(message)s'
-    
-    os.makedirs('logs', exist_ok=True)
-    
-    logging.basicConfig(
-        level=logging.INFO,
-        format=log_format,
-        handlers=[
-            logging.StreamHandler(),  
-            logging.FileHandler('logs/app.log'), 
-            logging.FileHandler('logs/timing.log') 
-        ]
-    )
-    
-    # Create specific loggers
-    app_logger = logging.getLogger('ppt_generator')
-    timing_logger = logging.getLogger('timing')
-    ai_logger = logging.getLogger('ai_service')
-    
-    return app_logger, timing_logger, ai_logger
-
-# Initialize loggers
-app_logger, timing_logger, ai_logger = setup_logging()
-
-# Custom logging filter to add request ID
-class RequestIDFilter(logging.Filter):
-    def filter(self, record):
-        record.request_id = getattr(request, 'request_id', 'no-request')
-        return True
-
-# Add the filter to all handlers
-for handler in logging.getLogger().handlers:
-    handler.addFilter(RequestIDFilter())
-
-def log_timing(operation_name):
-    """Decorator to log timing of operations"""
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args, **kwargs):
-            request_id = getattr(request, 'request_id', str(uuid.uuid4())[:8])
-            start_time = time.time()
-            
-            timing_logger.info(f"Starting {operation_name}", extra={'request_id': request_id})
-            
-            try:
-                result = func(*args, **kwargs)
-                end_time = time.time()
-                duration = end_time - start_time
-                
-                timing_logger.info(
-                    f"Completed {operation_name} in {duration:.2f}s", 
-                    extra={'request_id': request_id}
-                )
-                
-                return result
-            except Exception as e:
-                end_time = time.time()
-                duration = end_time - start_time
-                
-                timing_logger.error(
-                    f"Failed {operation_name} after {duration:.2f}s: {str(e)}", 
-                    extra={'request_id': request_id}
-                )
-                raise
-                
-        return wrapper
-    return decorator
-
-def log_performance_metrics(metrics_dict, operation_name):
-    """Log performance metrics for complex operations"""
-    request_id = getattr(request, 'request_id', 'no-request')
-    timing_logger.info(
-        f"Performance metrics for {operation_name}: {json.dumps(metrics_dict)}", 
-        extra={'request_id': request_id}
-    )
-
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  
 app.config['UPLOAD_FOLDER'] = 'generated_ppts'
@@ -119,30 +36,6 @@ app.config['TEMPLATE_FOLDER'] = 'templates'
 
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['TEMPLATE_FOLDER'], exist_ok=True)
-
-# Add before_request handler to generate request ID and log start
-@app.before_request
-def before_request():
-    request.request_id = str(uuid.uuid4())[:8]
-    request.start_time = time.time()
-    
-    app_logger.info(
-        f"Request started: {request.method} {request.path}",
-        extra={'request_id': request.request_id}
-    )
-
-# Add after_request handler to log completion
-@app.after_request
-def after_request(response):
-    duration = time.time() - request.start_time
-    
-    app_logger.info(
-        f"Request completed: {request.method} {request.path} - "
-        f"Status: {response.status_code} - Duration: {duration:.2f}s",
-        extra={'request_id': request.request_id}
-    )
-    
-    return response
 
 load_dotenv()
 api_key_openAI = os.getenv("OPENAI_API_KEY")
@@ -171,7 +64,6 @@ class AIService:
             genai.configure(api_key=gemini_api_key)
             self.gemini_configured = True
     
-    @log_timing("AI Content Generation")
     def generate_content(self, request_type: AIRequestType, context: Dict[str, Any], existing_title: str = None) -> Any:
         """
         Unified AI content generation function
@@ -184,8 +76,6 @@ class AIService:
         Returns:
             Generated content
         """
-        ai_logger.info(f"Generating content for {request_type.value}")
-        
         if request_type == AIRequestType.EXECUTIVE_SUMMARY:
             return self._generate_executive_summary(context)
         elif request_type == AIRequestType.MARKET_ENABLERS:
@@ -203,12 +93,10 @@ class AIService:
         elif request_type == AIRequestType.INDUSTRY_ASSOCIATIONS:
             return self._generate_industry_associations(context)
 
-    @log_timing("Parallel AI Content Generation")
     def generate_content_parallel(self, ai_context: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate AI content in parallel while respecting dependencies
         """
-        ai_logger.info("Starting parallel AI content generation")
         results = {}
         
         phase1_tasks = {
@@ -221,10 +109,6 @@ class AIService:
             'company_info': (AIRequestType.COMPANY_INFO, ai_context)
         }
         
-        # Track timing for each task
-        task_timings = {}
-        phase1_start = time.time()
-        
         # Execute phase 1 in parallel
         with concurrent.futures.ThreadPoolExecutor(max_workers=7) as executor:
             future_to_key = {
@@ -234,46 +118,21 @@ class AIService:
             
             for future in concurrent.futures.as_completed(future_to_key):
                 key = future_to_key[future]
-                task_start = time.time()
                 try:
                     results[key] = future.result()
-                    task_duration = time.time() - task_start
-                    task_timings[key] = task_duration
-                    ai_logger.info(f"Completed {key} in {task_duration:.2f}s")
                 except Exception as exc:
-                    task_duration = time.time() - task_start
-                    ai_logger.error(f'{key} generated an exception after {task_duration:.2f}s: {exc}')
+                    print(f'{key} generated an exception: {exc}')
                     raise exc
         
-        phase1_duration = time.time() - phase1_start
-        ai_logger.info(f"Phase 1 completed in {phase1_duration:.2f}s")
-        
-        # Phase 2: dependent task
-        phase2_start = time.time()
         industry_title = results['industry_expansion']['title']
         results['industry_expansion_1'] = self.generate_content(
             AIRequestType.INDUSTRY_EXPANSION_1, 
             ai_context, 
             industry_title
         )
-        phase2_duration = time.time() - phase2_start
-        task_timings['industry_expansion_1'] = phase2_duration
-        
-        # Log performance metrics
-        total_duration = phase1_duration + phase2_duration
-        metrics = {
-            'total_duration': total_duration,
-            'phase1_duration': phase1_duration,
-            'phase2_duration': phase2_duration,
-            'task_timings': task_timings,
-            'parallel_efficiency': phase1_duration / sum(task_timings.values()) if task_timings else 0
-        }
-        
-        log_performance_metrics(metrics, "Parallel AI Content Generation")
         
         return results
     
-    @log_timing("Executive Summary Generation")
     def _generate_executive_summary(self, context: Dict[str, Any]) -> str:
         first_line = (f"The {context['headline']} is valued at {context['cur']} {context['rev_current']} "
                     f"{context['value_in']} in {context['base_year']}, and is expected to reach "
@@ -282,35 +141,22 @@ class AIService:
         
         prompt = f"Write an executive summary for {context['headline']} focusing on key market drivers, trends, and growth factors within 50 words stricly. Do not include market size or revenue figures as they are already provided. Focus on qualitative insights about market dynamics, key players, and future outlook. ( start directly from setence without any intro like 'The executive summary is...')"
         
-        start_time = time.time()
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}]
         )
-        api_duration = time.time() - start_time
-        
-        ai_logger.info(f"OpenAI API call completed in {api_duration:.2f}s")
-        
         ai_summary = response.choices[0].message.content
         full_summary = f"{first_line} {ai_summary}"
         return full_summary
     
-    @log_timing("Market Enablers Generation")
     def _generate_market_enablers(self, context: Dict[str, Any]) -> str:
         prompt = f'Write an executive summary about key market enablers (2 points) for {context["headline"]}, each 50 words strickly. Return a Python list like ["heading: context", "heading: context"].'
-        
-        start_time = time.time()
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}]
         )
-        api_duration = time.time() - start_time
-        
-        ai_logger.info(f"Market enablers API call completed in {api_duration:.2f}s")
-        
         return "\n".join(ast.literal_eval(response.choices[0].message.content))
     
-    @log_timing("Industry Expansion Generation")
     def _generate_industry_expansion(self, context: Dict[str, Any]) -> Dict[str, Any]:
         prompt = (
             f'Write one TOP Key Driver for the {context["headline"]} market. '
@@ -322,18 +168,13 @@ class AIService:
             f'Do not include market size, numbers, or links.'
         ) 
 
-        start_time = time.time()
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}]
         )
-        api_duration = time.time() - start_time
-        
-        ai_logger.info(f"Industry expansion API call completed in {api_duration:.2f}s")
 
         return ast.literal_eval(response.choices[0].message.content)
     
-    @log_timing("Industry Expansion 1 Generation")
     def _generate_industry_expansion_1(self, context: Dict[str, Any], existing_title: str = None) -> Dict[str, Any]:
         existing_title_instruction = ""
         if existing_title:
@@ -350,18 +191,13 @@ class AIService:
             f'Focus on a unique aspect not covered by other drivers.'
         )
 
-        start_time = time.time()
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}]
         )
-        api_duration = time.time() - start_time
-        
-        ai_logger.info(f"Industry expansion 1 API call completed in {api_duration:.2f}s")
 
         return ast.literal_eval(response.choices[0].message.content)
     
-    @log_timing("Investment Challenges Generation")
     def _generate_investment_challenges(self, context: Dict[str, Any]) -> str:
         prompt = (
             f'Write one TOP Key MARKET RESTRAINTS or CHALLENGES for the {context["headline"]} market. '
@@ -373,18 +209,13 @@ class AIService:
             f'Do not include market size, numbers, or links.'
         )
 
-        start_time = time.time()
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}]
         )
-        api_duration = time.time() - start_time
-        
-        ai_logger.info(f"Investment challenges API call completed in {api_duration:.2f}s")
 
         return ast.literal_eval(response.choices[0].message.content)
     
-    @log_timing("Company Info Generation")
     def _generate_company_info(self, context: Dict[str, Any]) -> Dict[str, str]:
         prompt = f'''Generate information about {context["company_name"]} in the "{context["headline"]}" domain. 
         Return the information in the following JSON format:
@@ -414,7 +245,6 @@ class AIService:
         employee_count should be in "X,XXX" or "XX,XXX" format and should be correct data.
         Return ONLY valid JSON, no additional text. no urls/citations for references.'''
         
-        start_time = time.time()
         response = client.responses.create(
             model="gpt-5",
             tools=[{
@@ -425,11 +255,7 @@ class AIService:
                 {"role": "system", "content": "You are a JSON generator. Always return valid JSON and nothing else."},
                 {"role": "user", "content": prompt}
             ]
-        )
-        api_duration = time.time() - start_time
-        
-        ai_logger.info(f"Company info API call completed in {api_duration:.2f}s")
-        
+        )          
         content = response.output_text.strip()
         
         if content.startswith("```json"):
@@ -440,12 +266,10 @@ class AIService:
         
         return json.loads(content)
 
-    @log_timing("Research Journals Generation")
     def _generate_research_journals(self, context: Dict[str, Any]) -> List[str]:
         """Generate research journals related to the market"""
         market_name = context.get('headline', 'Technology Market')
         
-        start_time = time.time()
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
@@ -468,9 +292,6 @@ class AIService:
             ],
             response_format={"type": "json_object"}
         )
-        api_duration = time.time() - start_time
-        
-        ai_logger.info(f"Research journals API call completed in {api_duration:.2f}s")
         
         json_response = json.loads(response.choices[0].message.content)
         journals = json_response.get('journals', [])
@@ -489,12 +310,10 @@ class AIService:
         
         return journals[:5]  
     
-    @log_timing("Industry Associations Generation")
     def _generate_industry_associations(self, context: Dict[str, Any]) -> List[str]:
         """Generate industry associations and government organizations related to the market"""
         market_name = context.get('headline', 'Technology Market')
         
-        start_time = time.time()
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[
@@ -518,9 +337,6 @@ class AIService:
             ],
             response_format={"type": "json_object"}
         )
-        api_duration = time.time() - start_time
-        
-        ai_logger.info(f"Industry associations API call completed in {api_duration:.2f}s")
         
         json_response = json.loads(response.choices[0].message.content)
         associations = json_response.get('associations', [])
@@ -686,10 +502,7 @@ class TaxonomyBoxGenerator:
                 lnSpc.append(spcPts)
                 pPr.append(lnSpc)
 
-    @log_timing("Adding Taxonomy Boxes")
     def add_taxonomy_boxes(self, slide_index, taxonomy_data):
-        app_logger.info(f"Adding taxonomy boxes to slide {slide_index}")
-        
         slide = self.prs.slides[slide_index]
         available_width = self.slide_width - self.left_margin - self.right_margin
         num_categories = len(taxonomy_data)
@@ -742,11 +555,8 @@ class TaxonomyBoxGenerator:
             current_top += row_max_height + self.v_spacing
 
 
-@log_timing("Text Replacement in Presentation")
 def replace_text_in_presentation(prs, slide_data_dict):
     """Replaces placeholders in the entire presentation."""
-    app_logger.info("Starting text replacement in presentation")
-    
     for slide_idx, slide in enumerate(prs.slides):
         data = slide_data_dict.get(slide_idx, {})
         if not data:
@@ -762,11 +572,8 @@ def replace_text_in_presentation(prs, slide_data_dict):
                         p.text = inline_text.replace(token, str(value))
 
 
-@log_timing("Text Replacement in Tables")
 def replace_text_in_tables(prs, slide_indices, slide_data_dict):
     """Replaces placeholders specifically within tables on given slides."""
-    app_logger.info(f"Replacing text in tables for slides: {slide_indices}")
-    
     for idx in slide_indices:
         if idx >= len(prs.slides):
             continue
@@ -852,11 +659,8 @@ def set_cell_border(cell):
         tcPr.append(ln)
 
 
-@log_timing("Segment Hierarchy Validation")
 def validate_segment_hierarchy(segment_text):
     """Validate the segment hierarchy structure"""
-    app_logger.info("Validating segment hierarchy structure")
-    
     lines = segment_text.strip().split('\n')
     errors = []
     last_main_number = 0
@@ -929,11 +733,8 @@ def generate_actual_data():
     return data
 
 
-@log_timing("Segment Input Parsing")
 def parse_segment_input(segment_input: str) -> Dict[str, Dict]:
     """Parse segment input into a nested dictionary"""
-    app_logger.info("Parsing segment input into nested dictionary")
-    
     lines = segment_input.strip().split("\n")
     nested_dict = {}
     level_stack = []
@@ -968,11 +769,8 @@ def parse_segment_input(segment_input: str) -> Dict[str, Dict]:
         level_stack.append(label)
     return nested_dict
 
-@log_timing("TOC Data Generation")
 def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, user_segment: str, kmi_items: List[str] = None) -> Dict[str, int]:
     """Generate Table of Contents data with dynamic KMI items"""
-    app_logger.info("Generating Table of Contents data")
-    
     toc_start_levels = {
         "1. Introduction": 0,
         "1.1. Objectives of the Study": 1,
@@ -1075,11 +873,8 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
     return {**toc_start_levels, **kmi_section, **toc_mid, **toc_end_levels}
 
 
-@log_timing("TOC Addition to Slides")
 def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_slide_indices: List[int]):
     """Add Table of Contents to specified slides"""
-    app_logger.info(f"Adding TOC to slides: {toc_slide_indices}")
-    
     for i in toc_slide_indices:
         slide = prs.slides[i]
         table_shape = slide.shapes.add_table(
@@ -1125,11 +920,8 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
                 content_index += 1
 
 
-@log_timing("Chart Creation on Slide")
 def create_chart_on_slide(slide: Any, data: List[List], chart_columns: List[str], 
                          left: float, top: float, width: float, height: float):
-    app_logger.info(f"Creating chart with {len(chart_columns)} series and {len(data)} data points")
-    
     chart_data = CategoryChartData()
     chart_data.categories = [str(row[0]) for row in data]
 
@@ -1186,11 +978,8 @@ def index():
 
 
 @app.route('/generate-ppt', methods=['POST'])
-@log_timing("PPT Generation Request")
 def generate_ppt():
     try:
-        app_logger.info("Starting PowerPoint generation request")
-        
         form_data = request.form
         required_fields = [
             'headline', 'headline_2', 'historical_year', 'base_year',
@@ -1198,15 +987,12 @@ def generate_ppt():
             'rev_current', 'rev_future', 'segment_input', 'companies','cagr',
         ]
         
-        # Validate required fields
-        validation_start = time.time()
         missing_fields = []
         for field in required_fields:
             if not form_data.get(field, '').strip():
                 missing_fields.append(field)
         
         if missing_fields:
-            app_logger.warning(f"Missing required fields: {missing_fields}")
             return jsonify({
                 'error': 'Missing required fields',
                 'fields': missing_fields
@@ -1214,17 +1000,12 @@ def generate_ppt():
         
         segment_errors = validate_segment_hierarchy(form_data['segment_input'])
         if segment_errors:
-            app_logger.warning(f"Segment validation errors: {segment_errors}")
             return jsonify({
                 'error': 'Invalid segment hierarchy',
                 'details': segment_errors
             }), 400
         
-        validation_duration = time.time() - validation_start
-        timing_logger.info(f"Form validation completed in {validation_duration:.2f}s")
-        
         # Extract form data
-        extraction_start = time.time()
         headline = form_data['headline']
         headline_2 = headline.upper()
         headline_3 = headline_2.replace("Global", "").strip()
@@ -1262,23 +1043,17 @@ def generate_ppt():
                 ]
         default_kmi_bullets = format_as_bullets(default_kmiitems)
         user_kmi_bullets = format_as_bullets(kmi_items) if kmi_items else ""
-        
         # Get companies from form input
         companies_input = form_data['companies'].strip()
         company_list = [company.strip() for company in companies_input.split('\n') if company.strip()]
         
         if not company_list:
-            app_logger.warning("No companies provided")
             return jsonify({
                 'error': 'At least one company must be provided',
                 'message': 'Please provide company names, one per line'
             }), 400
         
-        extraction_duration = time.time() - extraction_start
-        timing_logger.info(f"Data extraction completed in {extraction_duration:.2f}s")
-        
         # Parse segment input
-        parsing_start = time.time()
         nested_dict = parse_segment_input(segment_input)
         main_topic = list(nested_dict.keys())
         s_segment = "By " + "\nBy ".join(main_topic)
@@ -1299,17 +1074,10 @@ def generate_ppt():
             "By Region: North America, Europe, Asia-Pacific, Latin America, Middle East & Africa"
         )
         context = "\n".join(output_lines)
-        
-        parsing_duration = time.time() - parsing_start
-        timing_logger.info(f"Context generation completed in {parsing_duration:.2f}s")
-        
-        app_logger.info(f"Generated context: {context}")
+        print(f"Generated context: {context}")
         
         # Generate TOC
-        toc_start = time.time()
         toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period, user_segment, kmi_items)
-        toc_duration = time.time() - toc_start
-        timing_logger.info(f"TOC generation completed in {toc_duration:.2f}s")
 
         ai_context = {
             'headline': headline,
@@ -1326,9 +1094,9 @@ def generate_ppt():
             'company_name': company_list[0] 
         }
         
-        app_logger.info("Starting parallel AI content generation...")
+        print("Starting parallel AI content generation...")
         ai_results = ai_service.generate_content_parallel(ai_context)
-        app_logger.info("Completed parallel AI content generation")
+        print("Completed parallel AI content generation")
         
         # Extract results
         mpara_11 = ai_results['executive_summary']
@@ -1347,9 +1115,9 @@ def generate_ppt():
         para_15 = '\n'.join(para_15_dict['paragraphs'])
         para_14 = '\n'.join(para_14_dict['paragraphs'])
         
-        app_logger.info(f"Generated research journals: {research_journals}")
-        app_logger.info(f"Generated industry associations: {industry_associations}")
-        app_logger.info(f"Generated company info: {company_info}")
+        print(f"Generated research journals: {research_journals}")
+        print(f"Generated industry associations: {industry_associations}")
+        print(f"Generated company info: {company_info}")
         
         # Add company profiles to TOC
         x = len(main_topic) + 6
@@ -1372,7 +1140,6 @@ def generate_ppt():
         }
        
         # --- Slide Data Dictionary ---
-        slide_data_start = time.time()
         slide_data = {
             0: {
                 "heading": headline_2,
@@ -1503,23 +1270,15 @@ def generate_ppt():
             35: {"company": company_info["company_name"].upper()},
         }
 
-        slide_data_duration = time.time() - slide_data_start
-        timing_logger.info(f"Slide data preparation completed in {slide_data_duration:.2f}s")
-
         # --- PRESENTATION MODIFICATION ---
-        ppt_start = time.time()
-        app_logger.info("Loading base presentation 'testppt.pptx'...")
+        print("Loading base presentation 'testppt.pptx'...")
         if not os.path.exists("testppt.pptx"):
-            app_logger.error("Template file 'testppt.pptx' not found")
             return jsonify({
                 'error': 'Template file not found',
                 'message': 'Please ensure testppt.pptx is in the project directory'
             }), 500
             
         prs = Presentation("testppt.pptx")
-        
-        # Text replacement
-        text_replacement_start = time.time()
         for slide in prs.slides:
             data = slide_data.get(prs.slides.index(slide), {})
             for shape in slide.shapes:
@@ -1539,26 +1298,22 @@ def generate_ppt():
                             token = f"{{{{{key}}}}}"
                             replace_text_preserving_color(paragraph, token, value)
 
-        text_replacement_duration = time.time() - text_replacement_start
-        timing_logger.info(f"Text replacement completed in {text_replacement_duration:.2f}s")
-
         # Step 2: Add taxonomy boxes to slide 2 (index 1)
-        app_logger.info("Adding taxonomy boxes...")
+        print("Adding taxonomy boxes...")
         generator = TaxonomyBoxGenerator(prs)
         generator.add_taxonomy_boxes(1, table_taxonomy)
 
         # Step 3: Perform text replacements in tables on specific slides
-        app_logger.info("Performing text replacements inside tables...")
+        print("Performing text replacements inside tables...")
         table_slide_indices = [10,13, 16, 17,18,19,21, 23, 24, 25, 26,27, 28,29,30,31, 32, 33,34,35]
         replace_text_in_tables(prs, table_slide_indices, slide_data)
 
         # Step 4: Add and populate the Table of Contents slides
-        app_logger.info("Creating Table of Contents...")
+        print("Creating Table of Contents...")
         toc_slide_indices = [4, 5, 6, 7]
         add_toc_to_slides(prs, toc_data_levels, toc_slide_indices)
 
         # Step 5: Add tables and charts
-        tables_charts_start = time.time()
         target_slide_indices = [24, 27, 28]
         graph_table = list(nested_dict[main_topic[0]].keys()) if main_topic else []
         total_rows = len(graph_table)
@@ -1688,54 +1443,23 @@ def generate_ppt():
                         Inches(0.4), Inches(1.1), Inches(12.5), Inches(2.8)
                     )
 
-        tables_charts_duration = time.time() - tables_charts_start
-        timing_logger.info(f"Tables and charts creation completed in {tables_charts_duration:.2f}s")
-
         # Save the final presentation with market name as filename
-        save_start = time.time()
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         clean_market_name = clean_filename(headline)
         filename = f"{clean_market_name}_{timestamp}.pptx"
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
-        app_logger.info(f"Saving the final presentation to '{filepath}'...")
+        print(f"Saving the final presentation to '{filepath}'...")
         prs.save(filepath)
-        
-        save_duration = time.time() - save_start
-        timing_logger.info(f"File save completed in {save_duration:.2f}s")
-        
-        ppt_duration = time.time() - ppt_start
-        
-        # Log final timing metrics
-        total_duration = time.time() - request.start_time
-        final_metrics = {
-            'total_request_duration': total_duration,
-            'validation_duration': validation_duration,
-            'extraction_duration': extraction_duration,
-            'parsing_duration': parsing_duration,
-            'toc_duration': toc_duration,
-            'slide_data_duration': slide_data_duration,
-            'text_replacement_duration': text_replacement_duration,
-            'tables_charts_duration': tables_charts_duration,
-            'save_duration': save_duration,
-            'ppt_processing_duration': ppt_duration,
-            'file_size_mb': os.path.getsize(filepath) / (1024 * 1024) if os.path.exists(filepath) else 0
-        }
-        
-        log_performance_metrics(final_metrics, "Complete PPT Generation")
-        
-        app_logger.info("✅ PowerPoint generation completed successfully!")
+        print("✅ Script finished successfully!")
         
         return jsonify({
             'success': True,
             'filename': filename,
-            'message': 'PowerPoint generated successfully',
-            'metrics': final_metrics
+            'message': 'PowerPoint generated successfully'
         })
         
     except Exception as e:
-        duration = time.time() - request.start_time
-        app_logger.error(f"PowerPoint generation failed after {duration:.2f}s", exc_info=True)
         traceback.print_exc()
         return jsonify({
             'error': 'Failed to generate PowerPoint',
@@ -1744,42 +1468,35 @@ def generate_ppt():
 
 
 @app.route('/download/<path:filename>')
-@log_timing("File Download")
 def download_file(filename):
     try:
-        app_logger.info(f"Download requested for file: {filename}")
-        
         import urllib.parse
         decoded_filename = urllib.parse.unquote(filename)
         
         if '..' in decoded_filename or '/' in decoded_filename or '\\' in decoded_filename:
-            app_logger.warning(f"Invalid filename attempted: {decoded_filename}")
             return jsonify({'error': 'Invalid filename'}), 400
         
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], decoded_filename)
         
-        app_logger.info(f"Looking for file: {filepath}")
-        app_logger.info(f"File exists: {os.path.exists(filepath)}")
+        print(f"Looking for file: {filepath}")
+        print(f"File exists: {os.path.exists(filepath)}")
         
         if not os.path.exists(filepath):
             try:
                 available_files = os.listdir(app.config['UPLOAD_FOLDER'])
-                app_logger.info(f"Available files: {available_files}")
+                print(f"Available files: {available_files}")
             except:
-                app_logger.warning("Could not list available files")
+                print("Could not list available files")
             return jsonify({'error': 'File not found'}), 404
-        
-        file_size = os.path.getsize(filepath) / (1024 * 1024)  # MB
-        app_logger.info(f"Serving file {decoded_filename} ({file_size:.2f} MB)")
         
         def remove_file_after_send(filepath):
             def remove_file(response):
                 try:
                     if os.path.exists(filepath):
                         os.remove(filepath)
-                        app_logger.info(f"Temporary file deleted: {filepath}")
+                        print(f"Temporary file deleted: {filepath}")
                 except Exception as e:
-                    app_logger.error(f"Error deleting file: {e}")
+                    print(f"Error deleting file: {e}")
                 return response
             return remove_file
         
@@ -1790,14 +1507,13 @@ def download_file(filename):
             try:
                 if os.path.exists(filepath):
                     os.remove(filepath)
-                    app_logger.info(f"Temporary file deleted after download: {filepath}")
+                    print(f"Temporary file deleted after download: {filepath}")
             except Exception as e:
-                app_logger.error(f"Error deleting file after download: {e}")
+                print(f"Error deleting file after download: {e}")
         
         return response
         
     except Exception as e:
-        app_logger.error(f"Download error: {e}", exc_info=True)
         print(f"Download error: {e}")
         return jsonify({'error': 'File download failed', 'details': str(e)}), 500
 

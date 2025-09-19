@@ -1,0 +1,128 @@
+2025-09-19 11:59:56,490 - werkzeug - INFO - [background-thread] - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.44:5000
+2025-09-19 11:59:56,491 - werkzeug - INFO - [background-thread] - [33mPress CTRL+C to quit[0m
+2025-09-19 11:59:56,500 - werkzeug - INFO - [background-thread] -  * Restarting with watchdog (windowsapi)
+2025-09-19 11:59:59,467 - werkzeug - WARNING - [background-thread] -  * Debugger is active!
+2025-09-19 11:59:59,470 - werkzeug - INFO - [background-thread] -  * Debugger PIN: 278-680-281
+2025-09-19 12:00:05,445 - ppt_generator - INFO - [89f9782e] - Request started: GET /
+2025-09-19 12:00:05,455 - ppt_generator - INFO - [89f9782e] - Request completed: GET / - Status: 200 - Duration: 0.01s
+2025-09-19 12:00:05,455 - werkzeug - INFO - [89f9782e] - 192.168.1.44 - - [19/Sep/2025 12:00:05] "GET / HTTP/1.1" 200 -
+2025-09-19 12:00:06,225 - ppt_generator - INFO - [f56d9a3f] - Request started: GET /favicon.ico
+2025-09-19 12:00:06,226 - ppt_generator - INFO - [f56d9a3f] - Request completed: GET /favicon.ico - Status: 404 - Duration: 0.00s
+2025-09-19 12:00:06,226 - werkzeug - INFO - [f56d9a3f] - 192.168.1.44 - - [19/Sep/2025 12:00:06] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-09-19 12:00:24,614 - ppt_generator - INFO - [1b159fd9] - Request started: POST /generate-ppt
+2025-09-19 12:00:24,615 - timing - INFO - [1b159fd9] - Starting PPT Generation Request
+2025-09-19 12:00:24,615 - ppt_generator - INFO - [1b159fd9] - Starting PowerPoint generation request
+2025-09-19 12:00:24,616 - timing - INFO - [1b159fd9] - Starting Segment Hierarchy Validation
+2025-09-19 12:00:24,617 - ppt_generator - INFO - [1b159fd9] - Validating segment hierarchy structure
+2025-09-19 12:00:24,617 - timing - INFO - [1b159fd9] - Completed Segment Hierarchy Validation in 0.00s
+2025-09-19 12:00:24,617 - timing - INFO - [1b159fd9] - Form validation completed in 0.00s
+2025-09-19 12:00:24,618 - timing - INFO - [1b159fd9] - Data extraction completed in 0.00s
+2025-09-19 12:00:24,618 - timing - INFO - [1b159fd9] - Starting Segment Input Parsing
+2025-09-19 12:00:24,618 - ppt_generator - INFO - [1b159fd9] - Parsing segment input into nested dictionary
+2025-09-19 12:00:24,618 - timing - INFO - [1b159fd9] - Completed Segment Input Parsing in 0.00s
+2025-09-19 12:00:24,619 - timing - INFO - [1b159fd9] - Context generation completed in 0.00s
+2025-09-19 12:00:24,619 - ppt_generator - INFO - [1b159fd9] - Generated context: By Technology: Machine Learning (Deep Learning, Neural Networks), Natural Language Processing
+By Application: Healthcare, Financial Services, Manufacturing
+By Region: North America, Europe, Asia-Pacific, Latin America, Middle East & Africa
+2025-09-19 12:00:24,619 - timing - INFO - [1b159fd9] - Starting TOC Data Generation
+2025-09-19 12:00:24,619 - ppt_generator - INFO - [1b159fd9] - Generating Table of Contents data
+2025-09-19 12:00:24,620 - timing - INFO - [1b159fd9] - Completed TOC Data Generation in 0.00s
+2025-09-19 12:00:24,620 - timing - INFO - [1b159fd9] - TOC generation completed in 0.00s
+2025-09-19 12:00:24,620 - ppt_generator - INFO - [1b159fd9] - Starting parallel AI content generation...
+2025-09-19 12:00:24,621 - timing - INFO - [1b159fd9] - Starting Parallel AI Content Generation
+2025-09-19 12:00:24,621 - ai_service - INFO - [1b159fd9] - Starting parallel AI content generation
+2025-09-19 12:00:24,622 - timing - INFO - [1b159fd9] - Starting AI Content Generation
+2025-09-19 12:00:24,622 - ai_service - INFO - [1b159fd9] - Generating content for executive_summary
+2025-09-19 12:00:24,622 - timing - INFO - [1b159fd9] - Starting AI Content Generation
+2025-09-19 12:00:24,623 - timing - INFO - [1b159fd9] - Starting AI Content Generation
+2025-09-19 12:00:24,623 - timing - INFO - [1b159fd9] - Starting Executive Summary Generation
+2025-09-19 12:00:24,623 - timing - INFO - [1b159fd9] - Starting AI Content Generation
+2025-09-19 12:00:24,624 - ai_service - INFO - [1b159fd9] - Generating content for market_enablers
+2025-09-19 12:00:24,624 - ai_service - INFO - [1b159fd9] - Generating content for industry_expansion
+2025-09-19 12:00:24,624 - timing - INFO - [1b159fd9] - Starting AI Content Generation
+2025-09-19 12:00:24,624 - timing - INFO - [1b159fd9] - Starting AI Content Generation
+2025-09-19 12:00:24,625 - timing - INFO - [1b159fd9] - Starting AI Content Generation
+2025-09-19 12:00:24,625 - ai_service - INFO - [1b159fd9] - Generating content for investment_challenges
+2025-09-19 12:00:24,626 - timing - INFO - [1b159fd9] - Starting Market Enablers Generation
+2025-09-19 12:00:24,626 - timing - INFO - [1b159fd9] - Starting Industry Expansion Generation
+2025-09-19 12:00:24,627 - ai_service - INFO - [1b159fd9] - Generating content for research_journals
+2025-09-19 12:00:24,627 - ai_service - INFO - [1b159fd9] - Generating content for industry_associations
+2025-09-19 12:00:24,627 - ai_service - INFO - [1b159fd9] - Generating content for company_info
+2025-09-19 12:00:24,628 - timing - INFO - [1b159fd9] - Starting Investment Challenges Generation
+2025-09-19 12:00:24,629 - timing - INFO - [1b159fd9] - Starting Research Journals Generation
+2025-09-19 12:00:24,629 - timing - INFO - [1b159fd9] - Starting Industry Associations Generation
+2025-09-19 12:00:24,630 - timing - INFO - [1b159fd9] - Starting Company Info Generation
+2025-09-19 12:00:33,536 - httpx - INFO - [1b159fd9] - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-19 12:00:33,548 - ai_service - INFO - [1b159fd9] - Industry associations API call completed in 8.92s
+2025-09-19 12:00:33,548 - timing - INFO - [1b159fd9] - Completed Industry Associations Generation in 8.92s
+2025-09-19 12:00:33,549 - timing - INFO - [1b159fd9] - Completed AI Content Generation in 8.92s
+2025-09-19 12:00:33,549 - ai_service - INFO - [1b159fd9] - Completed industry_associations in 0.00s
+2025-09-19 12:00:33,759 - httpx - INFO - [1b159fd9] - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-19 12:00:33,762 - ai_service - INFO - [1b159fd9] - Research journals API call completed in 9.13s
+2025-09-19 12:00:33,763 - timing - INFO - [1b159fd9] - Completed Research Journals Generation in 9.13s
+2025-09-19 12:00:33,763 - timing - INFO - [1b159fd9] - Completed AI Content Generation in 9.14s
+2025-09-19 12:00:33,763 - ai_service - INFO - [1b159fd9] - Completed research_journals in 0.00s
+2025-09-19 12:00:49,367 - httpx - INFO - [1b159fd9] - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-19 12:00:49,370 - ai_service - INFO - [1b159fd9] - Market enablers API call completed in 24.74s
+2025-09-19 12:00:49,370 - timing - INFO - [1b159fd9] - Completed Market Enablers Generation in 24.74s
+2025-09-19 12:00:49,371 - timing - INFO - [1b159fd9] - Completed AI Content Generation in 24.75s
+2025-09-19 12:00:49,371 - ai_service - INFO - [1b159fd9] - Completed market_enablers in 0.00s
+2025-09-19 12:00:49,839 - httpx - INFO - [1b159fd9] - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-19 12:00:49,843 - ai_service - INFO - [1b159fd9] - OpenAI API call completed in 25.22s
+2025-09-19 12:00:49,844 - timing - INFO - [1b159fd9] - Completed Executive Summary Generation in 25.22s
+2025-09-19 12:00:49,845 - timing - INFO - [1b159fd9] - Completed AI Content Generation in 25.22s
+2025-09-19 12:00:49,846 - ai_service - INFO - [1b159fd9] - Completed executive_summary in 0.00s
+2025-09-19 12:01:16,114 - ppt_generator - INFO - [ba4369de] - Request started: GET /
+2025-09-19 12:01:16,115 - ppt_generator - INFO - [ba4369de] - Request completed: GET / - Status: 200 - Duration: 0.00s
+2025-09-19 12:01:16,115 - werkzeug - INFO - [ba4369de] - 127.0.0.1 - - [19/Sep/2025 12:01:16] "GET / HTTP/1.1" 200 -
+2025-09-19 12:01:16,763 - ppt_generator - INFO - [74ad825a] - Request started: GET /favicon.ico
+2025-09-19 12:01:16,763 - ppt_generator - INFO - [74ad825a] - Request completed: GET /favicon.ico - Status: 404 - Duration: 0.00s
+2025-09-19 12:01:16,764 - werkzeug - INFO - [74ad825a] - 127.0.0.1 - - [19/Sep/2025 12:01:16] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
+2025-09-19 12:01:18,218 - httpx - INFO - [1b159fd9] - HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2025-09-19 12:01:18,301 - ai_service - INFO - [1b159fd9] - Company info API call completed in 53.67s
+2025-09-19 12:01:18,301 - timing - INFO - [1b159fd9] - Completed Company Info Generation in 53.67s
+2025-09-19 12:01:18,301 - timing - INFO - [1b159fd9] - Completed AI Content Generation in 53.68s
+2025-09-19 12:01:18,302 - ai_service - INFO - [1b159fd9] - Completed company_info in 0.00s
+2025-09-19 12:01:32,791 - httpx - INFO - [1b159fd9] - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-19 12:01:32,804 - ai_service - INFO - [1b159fd9] - Investment challenges API call completed in 68.17s
+2025-09-19 12:01:32,804 - timing - INFO - [1b159fd9] - Completed Investment Challenges Generation in 68.18s
+2025-09-19 12:01:32,804 - timing - INFO - [1b159fd9] - Completed AI Content Generation in 68.18s
+2025-09-19 12:01:32,805 - ai_service - INFO - [1b159fd9] - Completed investment_challenges in 0.00s
+2025-09-19 12:01:33,208 - httpx - INFO - [1b159fd9] - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-19 12:01:33,211 - ai_service - INFO - [1b159fd9] - Industry expansion API call completed in 68.58s
+2025-09-19 12:01:33,212 - timing - INFO - [1b159fd9] - Completed Industry Expansion Generation in 68.59s
+2025-09-19 12:01:33,212 - timing - INFO - [1b159fd9] - Completed AI Content Generation in 68.59s
+2025-09-19 12:01:33,212 - ai_service - INFO - [1b159fd9] - Completed industry_expansion in 0.00s
+2025-09-19 12:01:33,213 - ai_service - INFO - [1b159fd9] - Phase 1 completed in 68.59s
+2025-09-19 12:01:33,213 - timing - INFO - [1b159fd9] - Starting AI Content Generation
+2025-09-19 12:01:33,213 - ai_service - INFO - [1b159fd9] - Generating content for industry_expansion_1
+2025-09-19 12:01:33,213 - timing - INFO - [1b159fd9] - Starting Industry Expansion 1 Generation
+2025-09-19 12:02:54,311 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\openai\\_streaming.py', reloading
+2025-09-19 12:02:54,339 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\google\\generativeai\\client.py', reloading
+2025-09-19 12:02:55,258 - werkzeug - INFO - [background-thread] -  * Restarting with watchdog (windowsapi)
+2025-09-19 12:02:58,515 - werkzeug - WARNING - [background-thread] -  * Debugger is active!
+2025-09-19 12:02:58,519 - werkzeug - INFO - [background-thread] -  * Debugger PIN: 278-680-281
+2025-09-19 12:04:27,083 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\flask\\globals.py', reloading
+2025-09-19 12:04:27,085 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\flask\\wrappers.py', reloading
+2025-09-19 12:04:27,089 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\werkzeug\\wrappers\\__init__.py', reloading
+2025-09-19 12:04:27,105 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\werkzeug\\wrappers\\request.py', reloading
+2025-09-19 12:04:27,126 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\werkzeug\\sansio\\request.py', reloading
+2025-09-19 12:04:27,454 - werkzeug - INFO - [background-thread] -  * Restarting with watchdog (windowsapi)
+2025-09-19 12:04:30,452 - werkzeug - WARNING - [background-thread] -  * Debugger is active!
+2025-09-19 12:04:30,456 - werkzeug - INFO - [background-thread] -  * Debugger PIN: 278-680-281
+2025-09-19 12:04:47,714 - werkzeug - INFO - [background-thread] - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.1.44:5000
+2025-09-19 12:04:47,714 - werkzeug - INFO - [background-thread] - [33mPress CTRL+C to quit[0m
+2025-09-19 12:04:47,723 - werkzeug - INFO - [background-thread] -  * Restarting with watchdog (windowsapi)
+2025-09-19 12:04:50,702 - werkzeug - WARNING - [background-thread] -  * Debugger is active!
+2025-09-19 12:04:50,706 - werkzeug - INFO - [background-thread] -  * Debugger PIN: 278-680-281
+2025-09-19 12:05:10,652 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\OneDrive\\Desktop\\SQ\\ppt-generator\\app.py', reloading
+2025-09-19 12:05:10,657 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\OneDrive\\Desktop\\SQ\\ppt-generator\\app.py', reloading
+2025-09-19 12:05:10,658 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\OneDrive\\Desktop\\SQ\\ppt-generator\\app.py', reloading
+2025-09-19 12:05:10,659 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\OneDrive\\Desktop\\SQ\\ppt-generator\\app.py', reloading
+2025-09-19 12:05:11,431 - werkzeug - INFO - [background-thread] -  * Restarting with watchdog (windowsapi)
