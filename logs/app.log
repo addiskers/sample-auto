@@ -126,3 +126,116 @@ By Region: North America, Europe, Asia-Pacific, Latin America, Middle East & Afr
 2025-09-19 12:05:10,658 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\OneDrive\\Desktop\\SQ\\ppt-generator\\app.py', reloading
 2025-09-19 12:05:10,659 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\OneDrive\\Desktop\\SQ\\ppt-generator\\app.py', reloading
 2025-09-19 12:05:11,431 - werkzeug - INFO - [background-thread] -  * Restarting with watchdog (windowsapi)
+2025-09-19 12:57:17 - ppt_generator - INFO - Application starting up
+2025-09-19 12:57:17 - ppt_generator - INFO - Upload folder: generated_ppts
+2025-09-19 12:57:17 - ppt_generator - INFO - Template folder: templates
+2025-09-19 12:57:17 - ppt_generator - INFO - OpenAI API key loaded successfully
+2025-09-19 12:57:17 - ppt_generator - INFO - Gemini API key loaded successfully
+2025-09-19 12:57:17 - ppt_generator - INFO - Initializing AI Service globally
+2025-09-19 12:57:17 - ppt_generator - INFO - Initializing AI Service
+2025-09-19 12:57:17 - ppt_generator - INFO - Gemini configured successfully
+2025-09-19 12:57:17 - ppt_generator - INFO - Starting Flask application
+2025-09-19 12:57:24 - ppt_generator - INFO - Application starting up
+2025-09-19 12:57:24 - ppt_generator - INFO - Upload folder: generated_ppts
+2025-09-19 12:57:24 - ppt_generator - INFO - Template folder: templates
+2025-09-19 12:57:24 - ppt_generator - INFO - OpenAI API key loaded successfully
+2025-09-19 12:57:24 - ppt_generator - INFO - Gemini API key loaded successfully
+2025-09-19 12:57:24 - ppt_generator - INFO - Initializing AI Service globally
+2025-09-19 12:57:24 - ppt_generator - INFO - Initializing AI Service
+2025-09-19 12:57:24 - ppt_generator - INFO - Gemini configured successfully
+2025-09-19 12:57:24 - ppt_generator - INFO - Starting Flask application
+2025-09-19 12:57:27 - ppt_generator - INFO - Application starting up
+2025-09-19 12:57:27 - ppt_generator - INFO - Upload folder: generated_ppts
+2025-09-19 12:57:27 - ppt_generator - INFO - Template folder: templates
+2025-09-19 12:57:27 - ppt_generator - INFO - OpenAI API key loaded successfully
+2025-09-19 12:57:27 - ppt_generator - INFO - Gemini API key loaded successfully
+2025-09-19 12:57:28 - ppt_generator - INFO - Initializing AI Service globally
+2025-09-19 12:57:28 - ppt_generator - INFO - Initializing AI Service
+2025-09-19 12:57:28 - ppt_generator - INFO - Gemini configured successfully
+2025-09-19 12:57:28 - ppt_generator - INFO - Starting Flask application
+2025-09-19 12:57:29 - ppt_generator - INFO - [req_1758266849] PPT generation request started
+2025-09-19 12:57:29 - ppt_generator - INFO - Validating segment hierarchy
+2025-09-19 12:57:29 - ppt_generator - INFO - Segment hierarchy validation passed
+2025-09-19 12:57:29 - ppt_generator - INFO - [req_1758266849] Form validation passed
+2025-09-19 12:57:29 - ppt_generator - INFO - [req_1758266849] Processing 5 companies
+2025-09-19 12:57:29 - ppt_generator - INFO - Parsing segment input
+2025-09-19 12:57:29 - ppt_generator - INFO - Segment input parsed successfully: 2 main categories
+2025-09-19 12:57:29 - ppt_generator - INFO - [req_1758266849] Context generated successfully
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating Table of Contents data
+2025-09-19 12:57:29 - ppt_generator - INFO - TOC data generated with 74 items
+2025-09-19 12:57:29 - ppt_generator - INFO - [req_1758266849] Starting AI content generation
+2025-09-19 12:57:29 - ppt_generator - INFO - Starting parallel AI content generation
+2025-09-19 12:57:29 - ppt_generator - INFO - Phase 1: Executing 7 tasks in parallel
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating content for: executive_summary
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating content for: market_enablers
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating executive summary
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating content for: industry_expansion
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating content for: investment_challenges
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating market enablers
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating content for: research_journals
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating content for: industry_associations
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating content for: company_info
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating industry expansion
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating investment challenges
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating research journals
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating industry associations
+2025-09-19 12:57:29 - ppt_generator - INFO - Generating company info for: Apple Inc.
+2025-09-19 12:57:39 - ppt_generator - INFO - Research journals generated: 5 items
+2025-09-19 12:57:39 - ppt_generator - INFO - Content generation completed for: research_journals
+2025-09-19 12:57:39 - ppt_generator - INFO - Phase 1 task completed: research_journals
+2025-09-19 12:57:40 - ppt_generator - INFO - Executive summary generated successfully
+2025-09-19 12:57:40 - ppt_generator - INFO - Content generation completed for: executive_summary
+2025-09-19 12:57:40 - ppt_generator - INFO - Phase 1 task completed: executive_summary
+2025-09-19 12:57:48 - ppt_generator - INFO - Industry associations generated: 5 items
+2025-09-19 12:57:48 - ppt_generator - INFO - Content generation completed for: industry_associations
+2025-09-19 12:57:48 - ppt_generator - INFO - Phase 1 task completed: industry_associations
+2025-09-19 12:57:57 - ppt_generator - INFO - Market enablers generated successfully
+2025-09-19 12:57:57 - ppt_generator - INFO - Content generation completed for: market_enablers
+2025-09-19 12:57:57 - ppt_generator - INFO - Phase 1 task completed: market_enablers
+2025-09-19 12:59:16 - ppt_generator - INFO - Investment challenges generated successfully
+2025-09-19 12:59:16 - ppt_generator - INFO - Content generation completed for: investment_challenges
+2025-09-19 12:59:16 - ppt_generator - INFO - Phase 1 task completed: investment_challenges
+2025-09-19 12:59:46 - ppt_generator - INFO - Industry expansion generated successfully
+2025-09-19 12:59:46 - ppt_generator - INFO - Content generation completed for: industry_expansion
+2025-09-19 12:59:46 - ppt_generator - INFO - Phase 1 task completed: industry_expansion
+2025-09-19 12:59:54 - ppt_generator - INFO - Company info generated successfully
+2025-09-19 12:59:54 - ppt_generator - INFO - Content generation completed for: company_info
+2025-09-19 12:59:54 - ppt_generator - INFO - Phase 1 task completed: company_info
+2025-09-19 12:59:54 - ppt_generator - INFO - Phase 1 completed, starting Phase 2
+2025-09-19 12:59:54 - ppt_generator - INFO - Generating content for: industry_expansion_1
+2025-09-19 12:59:54 - ppt_generator - INFO - Generating industry expansion 1 (avoiding title: Fleet Digitization and Integration Driving Fuel Card Adoption)
+2025-09-19 13:00:55 - ppt_generator - INFO - Industry expansion 1 generated successfully
+2025-09-19 13:00:55 - ppt_generator - INFO - Content generation completed for: industry_expansion_1
+2025-09-19 13:00:55 - ppt_generator - INFO - Parallel AI content generation completed successfully
+2025-09-19 13:00:55 - ppt_generator - INFO - [req_1758266849] AI content extracted successfully
+2025-09-19 13:00:55 - ppt_generator - INFO - [req_1758266849] Starting presentation modification
+2025-09-19 13:00:55 - ppt_generator - INFO - [req_1758266849] Loading base presentation
+2025-09-19 13:00:55 - ppt_generator - INFO - [req_1758266849] Adding taxonomy boxes
+2025-09-19 13:00:55 - ppt_generator - INFO - Adding taxonomy boxes to slide 1
+2025-09-19 13:00:55 - ppt_generator - INFO - Taxonomy boxes added successfully to slide 1
+2025-09-19 13:00:55 - ppt_generator - INFO - [req_1758266849] Performing text replacements in tables
+2025-09-19 13:00:55 - ppt_generator - INFO - Starting text replacement in tables for slides: [10, 13, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+2025-09-19 13:00:55 - ppt_generator - INFO - Text replacement in tables completed
+2025-09-19 13:00:55 - ppt_generator - INFO - [req_1758266849] Creating Table of Contents
+2025-09-19 13:00:55 - ppt_generator - INFO - Adding TOC to slides: [4, 5, 6, 7]
+2025-09-19 13:00:55 - ppt_generator - INFO - TOC added to slides successfully
+2025-09-19 13:00:55 - ppt_generator - INFO - [req_1758266849] Adding tables and charts
+2025-09-19 13:00:56 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 13:00:56 - ppt_generator - INFO - Chart created successfully
+2025-09-19 13:00:56 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 13:00:56 - ppt_generator - INFO - Chart created successfully
+2025-09-19 13:00:56 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 13:00:56 - ppt_generator - INFO - Chart created successfully
+2025-09-19 13:00:56 - ppt_generator - INFO - Cleaning filename: Global Fuel Cards Market
+2025-09-19 13:00:56 - ppt_generator - INFO - Cleaned filename: Global Fuel Cards Market
+2025-09-19 13:00:56 - ppt_generator - INFO - [req_1758266849] Saving presentation to: generated_ppts\Global Fuel Cards Market_20250919_130056.pptx
+2025-09-19 13:00:56 - ppt_generator - INFO - [req_1758266849] PPT generation completed successfully: Global Fuel Cards Market_20250919_130056.pptx
+2025-09-19 13:55:14 - ppt_generator - INFO - Application starting up
+2025-09-19 13:55:14 - ppt_generator - INFO - Upload folder: generated_ppts
+2025-09-19 13:55:14 - ppt_generator - INFO - Template folder: templates
+2025-09-19 13:55:14 - ppt_generator - INFO - OpenAI API key loaded successfully
+2025-09-19 13:55:14 - ppt_generator - INFO - Gemini API key loaded successfully
+2025-09-19 13:55:15 - ppt_generator - INFO - Initializing AI Service globally
+2025-09-19 13:55:15 - ppt_generator - INFO - Initializing AI Service
+2025-09-19 13:55:15 - ppt_generator - INFO - Gemini configured successfully
+2025-09-19 13:55:15 - ppt_generator - INFO - Starting Flask application

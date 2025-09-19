@@ -4,6 +4,9 @@ import json
 import ast
 import re
 import traceback
+import logging
+import logging.handlers
+import time
 from datetime import datetime
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
@@ -29,6 +32,54 @@ from typing import Optional, Dict, List, Any
 import concurrent.futures
 import threading
 
+def setup_logging():
+    """Setup logging configuration"""
+    log_dir = '/app/logs' if os.path.exists('/app/logs') else 'logs'
+    os.makedirs(log_dir, exist_ok=True)
+    
+    app_log_file = os.path.join(log_dir, 'app.log')
+    timing_log_file = os.path.join(log_dir, 'timing.log')
+    
+    logging.basicConfig(level=logging.INFO)
+    
+    main_logger = logging.getLogger('ppt_generator')
+    main_logger.setLevel(logging.INFO)
+    
+    timing_logger = logging.getLogger('timing')
+    timing_logger.setLevel(logging.INFO)
+    
+    if not main_logger.handlers:
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        
+        app_handler = logging.handlers.RotatingFileHandler(
+            app_log_file, maxBytes=10*1024*1024, backupCount=5
+        )
+        app_handler.setFormatter(formatter)
+        main_logger.addHandler(app_handler)
+        
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        main_logger.addHandler(console_handler)
+    
+    if not timing_logger.handlers:
+        timing_formatter = logging.Formatter(
+            '%(asctime)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        
+        timing_handler = logging.handlers.RotatingFileHandler(
+            timing_log_file, maxBytes=5*1024*1024, backupCount=3
+        )
+        timing_handler.setFormatter(timing_formatter)
+        timing_logger.addHandler(timing_handler)
+    
+    return main_logger, timing_logger
+
+logger, timing_logger = setup_logging()
+
 app = Flask(__name__)
 app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  
 app.config['UPLOAD_FOLDER'] = 'generated_ppts'
@@ -37,14 +88,27 @@ app.config['TEMPLATE_FOLDER'] = 'templates'
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['TEMPLATE_FOLDER'], exist_ok=True)
 
+logger.info("Application starting up")
+logger.info(f"Upload folder: {app.config['UPLOAD_FOLDER']}")
+logger.info(f"Template folder: {app.config['TEMPLATE_FOLDER']}")
+
 load_dotenv()
 api_key_openAI = os.getenv("OPENAI_API_KEY")
 api_key_gemini = os.getenv("GEMINI_API_KEY")
 
+if api_key_openAI:
+    logger.info("OpenAI API key loaded successfully")
+else:
+    logger.warning("OpenAI API key not found")
+
+if api_key_gemini:
+    logger.info("Gemini API key loaded successfully")
+else:
+    logger.warning("Gemini API key not found")
+
 client = OpenAI(api_key=api_key_openAI)
 genai.configure(api_key=api_key_gemini)
 
-# --- AI REQUEST TYPES ---
 class AIRequestType(Enum):
     EXECUTIVE_SUMMARY = "executive_summary"
     MARKET_ENABLERS = "market_enablers"
@@ -55,48 +119,53 @@ class AIRequestType(Enum):
     RESEARCH_JOURNALS = "research_journals"
     INDUSTRY_ASSOCIATIONS = "industry_associations"
 
-# --- UNIFIED AI FUNCTION ---
 class AIService:
     def __init__(self, openai_client, gemini_api_key):
+        logger.info("Initializing AI Service")
         self.openai_client = openai_client
         self.gemini_configured = False
         if gemini_api_key:
             genai.configure(api_key=gemini_api_key)
             self.gemini_configured = True
+            logger.info("Gemini configured successfully")
+        else:
+            logger.warning("Gemini not configured")
     
     def generate_content(self, request_type: AIRequestType, context: Dict[str, Any], existing_title: str = None) -> Any:
-        """
-        Unified AI content generation function
+        start_time = time.time()
+        logger.info(f"Generating content for: {request_type.value}")
         
-        Args:
-            request_type: Type of AI request from AIRequestType enum
-            context: Dictionary containing context variables for the request
-            existing_title: Optional existing title to avoid duplicating
+        try:
+            if request_type == AIRequestType.EXECUTIVE_SUMMARY:
+                result = self._generate_executive_summary(context)
+            elif request_type == AIRequestType.MARKET_ENABLERS:
+                result = self._generate_market_enablers(context)
+            elif request_type == AIRequestType.INDUSTRY_EXPANSION:
+                result = self._generate_industry_expansion(context)
+            elif request_type == AIRequestType.INDUSTRY_EXPANSION_1: 
+                result = self._generate_industry_expansion_1(context, existing_title)
+            elif request_type == AIRequestType.INVESTMENT_CHALLENGES:
+                result = self._generate_investment_challenges(context)
+            elif request_type == AIRequestType.COMPANY_INFO:
+                result = self._generate_company_info(context)
+            elif request_type == AIRequestType.RESEARCH_JOURNALS:
+                result = self._generate_research_journals(context)
+            elif request_type == AIRequestType.INDUSTRY_ASSOCIATIONS:
+                result = self._generate_industry_associations(context)
             
-        Returns:
-            Generated content
-        """
-        if request_type == AIRequestType.EXECUTIVE_SUMMARY:
-            return self._generate_executive_summary(context)
-        elif request_type == AIRequestType.MARKET_ENABLERS:
-            return self._generate_market_enablers(context)
-        elif request_type == AIRequestType.INDUSTRY_EXPANSION:
-            return self._generate_industry_expansion(context)
-        elif request_type == AIRequestType.INDUSTRY_EXPANSION_1: 
-            return self._generate_industry_expansion_1(context, existing_title)
-        elif request_type == AIRequestType.INVESTMENT_CHALLENGES:
-            return self._generate_investment_challenges(context)
-        elif request_type == AIRequestType.COMPANY_INFO:
-            return self._generate_company_info(context)
-        elif request_type == AIRequestType.RESEARCH_JOURNALS:
-            return self._generate_research_journals(context)
-        elif request_type == AIRequestType.INDUSTRY_ASSOCIATIONS:
-            return self._generate_industry_associations(context)
+            elapsed = time.time() - start_time
+            timing_logger.info(f"{request_type.value} completed in {elapsed:.2f}s")
+            logger.info(f"Content generation completed for: {request_type.value}")
+            return result
+            
+        except Exception as e:
+            elapsed = time.time() - start_time
+            logger.error(f"Error generating {request_type.value} after {elapsed:.2f}s: {str(e)}")
+            raise
 
     def generate_content_parallel(self, ai_context: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Generate AI content in parallel while respecting dependencies
-        """
+        start_time = time.time()
+        logger.info("Starting parallel AI content generation")
         results = {}
         
         phase1_tasks = {
@@ -109,7 +178,8 @@ class AIService:
             'company_info': (AIRequestType.COMPANY_INFO, ai_context)
         }
         
-        # Execute phase 1 in parallel
+        logger.info(f"Phase 1: Executing {len(phase1_tasks)} tasks in parallel")
+        
         with concurrent.futures.ThreadPoolExecutor(max_workers=7) as executor:
             future_to_key = {
                 executor.submit(self.generate_content, request_type, context): key
@@ -120,10 +190,12 @@ class AIService:
                 key = future_to_key[future]
                 try:
                     results[key] = future.result()
+                    logger.info(f"Phase 1 task completed: {key}")
                 except Exception as exc:
-                    print(f'{key} generated an exception: {exc}')
+                    logger.error(f'Phase 1 task {key} generated an exception: {exc}')
                     raise exc
         
+        logger.info("Phase 1 completed, starting Phase 2")
         industry_title = results['industry_expansion']['title']
         results['industry_expansion_1'] = self.generate_content(
             AIRequestType.INDUSTRY_EXPANSION_1, 
@@ -131,9 +203,13 @@ class AIService:
             industry_title
         )
         
+        elapsed = time.time() - start_time
+        timing_logger.info(f"Parallel AI generation completed in {elapsed:.2f}s")
+        logger.info("Parallel AI content generation completed successfully")
         return results
     
     def _generate_executive_summary(self, context: Dict[str, Any]) -> str:
+        logger.info("Generating executive summary")
         first_line = (f"The {context['headline']} is valued at {context['cur']} {context['rev_current']} "
                     f"{context['value_in']} in {context['base_year']}, and is expected to reach "
                     f"{context['cur']} {context['rev_future']} {context['value_in']} by {context['forecast_year']}. "
@@ -147,17 +223,22 @@ class AIService:
         )
         ai_summary = response.choices[0].message.content
         full_summary = f"{first_line} {ai_summary}"
+        logger.info("Executive summary generated successfully")
         return full_summary
     
     def _generate_market_enablers(self, context: Dict[str, Any]) -> str:
+        logger.info("Generating market enablers")
         prompt = f'Write an executive summary about key market enablers (2 points) for {context["headline"]}, each 50 words strickly. Return a Python list like ["heading: context", "heading: context"].'
         response = self.openai_client.chat.completions.create(
             model="gpt-5-mini",
             messages=[{"role": "user", "content": prompt}]
         )
-        return "\n".join(ast.literal_eval(response.choices[0].message.content))
+        result = "\n".join(ast.literal_eval(response.choices[0].message.content))
+        logger.info("Market enablers generated successfully")
+        return result
     
     def _generate_industry_expansion(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        logger.info("Generating industry expansion")
         prompt = (
             f'Write one TOP Key Driver for the {context["headline"]} market. '
             f'Include a clear heading for the driver. '
@@ -173,9 +254,12 @@ class AIService:
             messages=[{"role": "user", "content": prompt}]
         )
 
-        return ast.literal_eval(response.choices[0].message.content)
+        result = ast.literal_eval(response.choices[0].message.content)
+        logger.info("Industry expansion generated successfully")
+        return result
     
     def _generate_industry_expansion_1(self, context: Dict[str, Any], existing_title: str = None) -> Dict[str, Any]:
+        logger.info(f"Generating industry expansion 1 (avoiding title: {existing_title})")
         existing_title_instruction = ""
         if existing_title:
             existing_title_instruction = f' Do not use "{existing_title}" as the title - generate a completely different driver.'
@@ -196,9 +280,12 @@ class AIService:
             messages=[{"role": "user", "content": prompt}]
         )
 
-        return ast.literal_eval(response.choices[0].message.content)
+        result = ast.literal_eval(response.choices[0].message.content)
+        logger.info("Industry expansion 1 generated successfully")
+        return result
     
     def _generate_investment_challenges(self, context: Dict[str, Any]) -> str:
+        logger.info("Generating investment challenges")
         prompt = (
             f'Write one TOP Key MARKET RESTRAINTS or CHALLENGES for the {context["headline"]} market. '
             f'Include a clear heading for the driver. '
@@ -214,9 +301,12 @@ class AIService:
             messages=[{"role": "user", "content": prompt}]
         )
 
-        return ast.literal_eval(response.choices[0].message.content)
+        result = ast.literal_eval(response.choices[0].message.content)
+        logger.info("Investment challenges generated successfully")
+        return result
     
     def _generate_company_info(self, context: Dict[str, Any]) -> Dict[str, str]:
+        logger.info(f"Generating company info for: {context['company_name']}")
         prompt = f'''Generate information about {context["company_name"]} in the "{context["headline"]}" domain. 
         Return the information in the following JSON format:
         {{
@@ -264,10 +354,12 @@ class AIService:
             content = content[:-3]
         content = content.strip()
         
-        return json.loads(content)
+        result = json.loads(content)
+        logger.info("Company info generated successfully")
+        return result
 
     def _generate_research_journals(self, context: Dict[str, Any]) -> List[str]:
-        """Generate research journals related to the market"""
+        logger.info("Generating research journals")
         market_name = context.get('headline', 'Technology Market')
         
         response = self.openai_client.chat.completions.create(
@@ -296,7 +388,6 @@ class AIService:
         json_response = json.loads(response.choices[0].message.content)
         journals = json_response.get('journals', [])
         
-        # Ensure we have exactly 5 journals
         default_journals = [
             "Journal of Market Research",
             "International Business Review",
@@ -308,10 +399,11 @@ class AIService:
         if len(journals) < 5:
             journals.extend(default_journals[len(journals):5])
         
+        logger.info(f"Research journals generated: {len(journals)} items")
         return journals[:5]  
     
     def _generate_industry_associations(self, context: Dict[str, Any]) -> List[str]:
-        """Generate industry associations and government organizations related to the market"""
+        logger.info("Generating industry associations")
         market_name = context.get('headline', 'Technology Market')
         
         response = self.openai_client.chat.completions.create(
@@ -352,9 +444,10 @@ class AIService:
         if len(associations) < 5:
             associations.extend(default_associations[len(associations):5])
         
+        logger.info(f"Industry associations generated: {len(associations)} items")
         return associations[:5]  
 
-# Initialize AI Service globally
+logger.info("Initializing AI Service globally")
 ai_service = AIService(client, api_key_gemini)
 
 class TaxonomyBoxGenerator:
@@ -367,7 +460,6 @@ class TaxonomyBoxGenerator:
         "white": RGBColor(255, 255, 255),
         "light_gray": RGBColor(0xF2, 0xF2, 0xF2),
         "text_dark": RGBColor(0, 0, 0),
-        # Add your new colors
         "new_blue": RGBColor(0x00, 0x70, 0xC0),     
         "light_green": RGBColor(0x92, 0xD0, 0x50),   
         "yellow_orange": RGBColor(0xFF, 0xC0, 0x00),
@@ -380,15 +472,15 @@ class TaxonomyBoxGenerator:
     }
     
     BOX_HEADER_COLORS = [
-        COLORS["new_blue"],      # Blue #0070C0
-        COLORS["light_green"],   # Light Green #92D050
-        COLORS["yellow_orange"], # Orange #FFC000
-        COLORS["dark_red"],      # Dark Red #C00000
-        COLORS["rose"],          # Rose #F87884
-        COLORS["light_black"],   # Black (Light) #7F7F7F
-        COLORS["dark_teal"],     # Dark Teal #00A88F
-        COLORS["turquoise"],     # Turquoise #33C5F0
-        COLORS["new_purple"],    # Purple #59468F
+        COLORS["new_blue"],      
+        COLORS["light_green"],   
+        COLORS["yellow_orange"], 
+        COLORS["dark_red"],      
+        COLORS["rose"],          
+        COLORS["light_black"],   
+        COLORS["dark_teal"],     
+        COLORS["turquoise"],     
+        COLORS["new_purple"],    
     ]
 
     def __init__(self, presentation):
@@ -440,7 +532,6 @@ class TaxonomyBoxGenerator:
         self._add_list_content(tf, content)
 
     def _add_list_content(self, text_frame, content):
-        """Add bullet list content with hollow bullets"""
         text_frame.margin_bottom = Pt(12)
         if text_frame.paragraphs:
             text_frame.paragraphs[0].text = ""
@@ -503,6 +594,7 @@ class TaxonomyBoxGenerator:
                 pPr.append(lnSpc)
 
     def add_taxonomy_boxes(self, slide_index, taxonomy_data):
+        logger.info(f"Adding taxonomy boxes to slide {slide_index}")
         slide = self.prs.slides[slide_index]
         available_width = self.slide_width - self.left_margin - self.right_margin
         num_categories = len(taxonomy_data)
@@ -553,10 +645,12 @@ class TaxonomyBoxGenerator:
                     box["color_index"]  
                 )
             current_top += row_max_height + self.v_spacing
+        
+        logger.info(f"Taxonomy boxes added successfully to slide {slide_index}")
 
 
 def replace_text_in_presentation(prs, slide_data_dict):
-    """Replaces placeholders in the entire presentation."""
+    logger.info("Starting text replacement in presentation")
     for slide_idx, slide in enumerate(prs.slides):
         data = slide_data_dict.get(slide_idx, {})
         if not data:
@@ -570,10 +664,11 @@ def replace_text_in_presentation(prs, slide_data_dict):
                     if token in p.text:
                         inline_text = p.text
                         p.text = inline_text.replace(token, str(value))
+    logger.info("Text replacement in presentation completed")
 
 
 def replace_text_in_tables(prs, slide_indices, slide_data_dict):
-    """Replaces placeholders specifically within tables on given slides."""
+    logger.info(f"Starting text replacement in tables for slides: {slide_indices}")
     for idx in slide_indices:
         if idx >= len(prs.slides):
             continue
@@ -593,10 +688,10 @@ def replace_text_in_tables(prs, slide_indices, slide_data_dict):
                                     run.text = run.text.replace(
                                         f"{{{{{key}}}}}", str(value)
                                     )
+    logger.info("Text replacement in tables completed")
 
 
 def get_rgb_color_safe(font):
-    """Safely get the RGB color from a font, returns None if not explicitly set."""
     try:
         return font.color.rgb
     except AttributeError:
@@ -660,7 +755,7 @@ def set_cell_border(cell):
 
 
 def validate_segment_hierarchy(segment_text):
-    """Validate the segment hierarchy structure"""
+    logger.info("Validating segment hierarchy")
     lines = segment_text.strip().split('\n')
     errors = []
     last_main_number = 0
@@ -709,11 +804,14 @@ def validate_segment_hierarchy(segment_text):
                 errors.append(f"Line {i + 1}: Expected sub-sub-number {main_num}.{sub_num}.{expected_sub_sub}")
             last_sub_numbers[key] = sub_sub_num
 
+    if errors:
+        logger.warning(f"Segment hierarchy validation found {len(errors)} errors")
+    else:
+        logger.info("Segment hierarchy validation passed")
     return errors
 
 
 def generate_actual_data():
-    """Generate actual data from the provided table (year followed by Segment1..Segment7)"""
     data = [
         [2019, 7.0, 5.0, 4.0, 3.5, 3.1, 2.5, 2.0],
         [2020, 7.5, 5.4, 4.3, 3.7, 3.3, 2.7, 2.2],
@@ -734,7 +832,7 @@ def generate_actual_data():
 
 
 def parse_segment_input(segment_input: str) -> Dict[str, Dict]:
-    """Parse segment input into a nested dictionary"""
+    logger.info("Parsing segment input")
     lines = segment_input.strip().split("\n")
     nested_dict = {}
     level_stack = []
@@ -767,10 +865,11 @@ def parse_segment_input(segment_input: str) -> Dict[str, Dict]:
             current = current[k]
         current[label] = {}
         level_stack.append(label)
+    logger.info(f"Segment input parsed successfully: {len(nested_dict)} main categories")
     return nested_dict
 
 def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, user_segment: str, kmi_items: List[str] = None) -> Dict[str, int]:
-    """Generate Table of Contents data with dynamic KMI items"""
+    logger.info("Generating Table of Contents data")
     toc_start_levels = {
         "1. Introduction": 0,
         "1.1. Objectives of the Study": 1,
@@ -870,11 +969,12 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
         f"{x+2}. Key Company Profiles": 0,
     }
     
+    logger.info(f"TOC data generated with {len(toc_start_levels) + len(kmi_section) + len(toc_mid) + len(toc_end_levels)} items")
     return {**toc_start_levels, **kmi_section, **toc_mid, **toc_end_levels}
 
 
 def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_slide_indices: List[int]):
-    """Add Table of Contents to specified slides"""
+    logger.info(f"Adding TOC to slides: {toc_slide_indices}")
     for i in toc_slide_indices:
         slide = prs.slides[i]
         table_shape = slide.shapes.add_table(
@@ -918,10 +1018,12 @@ def add_toc_to_slides(prs: Presentation, toc_data_levels: Dict[str, int], toc_sl
                     font.color.rgb = RGBColor(0, 0, 0)
                     font.bold = False
                 content_index += 1
+    logger.info("TOC added to slides successfully")
 
 
 def create_chart_on_slide(slide: Any, data: List[List], chart_columns: List[str], 
                          left: float, top: float, width: float, height: float):
+    logger.info(f"Creating chart with {len(chart_columns)} series and {len(data)} data points")
     chart_data = CategoryChartData()
     chart_data.categories = [str(row[0]) for row in data]
 
@@ -958,10 +1060,11 @@ def create_chart_on_slide(slide: Any, data: List[List], chart_columns: List[str]
     cat_axis.tick_labels.font.size = Pt(10)
     cat_axis.tick_labels.font.name = "Poppins"
     cat_axis.tick_label_position = XL_TICK_LABEL_POSITION.LOW
+    logger.info("Chart created successfully")
 
 
 def clean_filename(filename):
-    """Clean filename to be safe for filesystem"""
+    logger.info(f"Cleaning filename: {filename}")
     invalid_chars = '<>:"/\\|?*'
     for char in invalid_chars:
         filename = filename.replace(char, '_')
@@ -969,16 +1072,22 @@ def clean_filename(filename):
     filename = ' '.join(filename.split())  
     filename = filename[:100]  
     
+    logger.info(f"Cleaned filename: {filename}")
     return filename
 
 
 @app.route('/')
 def index():
+    logger.info("Index page accessed")
     return render_template('index.html')
 
 
 @app.route('/generate-ppt', methods=['POST'])
 def generate_ppt():
+    start_time = time.time()
+    request_id = f"req_{int(time.time())}"
+    logger.info(f"[{request_id}] PPT generation request started")
+    
     try:
         form_data = request.form
         required_fields = [
@@ -993,6 +1102,7 @@ def generate_ppt():
                 missing_fields.append(field)
         
         if missing_fields:
+            logger.warning(f"[{request_id}] Missing required fields: {missing_fields}")
             return jsonify({
                 'error': 'Missing required fields',
                 'fields': missing_fields
@@ -1000,12 +1110,14 @@ def generate_ppt():
         
         segment_errors = validate_segment_hierarchy(form_data['segment_input'])
         if segment_errors:
+            logger.warning(f"[{request_id}] Segment hierarchy validation failed: {len(segment_errors)} errors")
             return jsonify({
                 'error': 'Invalid segment hierarchy',
                 'details': segment_errors
             }), 400
         
-        # Extract form data
+        logger.info(f"[{request_id}] Form validation passed")
+        
         headline = form_data['headline']
         headline_2 = headline.upper()
         headline_3 = headline_2.replace("Global", "").strip()
@@ -1025,9 +1137,9 @@ def generate_ppt():
         
         if kmi_input:
             kmi_items = [item.strip() for item in kmi_input.split('\n') if item.strip()]
+            logger.info(f"[{request_id}] Custom KMI items provided: {len(kmi_items)}")
       
         def format_as_bullets(items_list):
-            """Convert list of items to bullet point string"""
             if not items_list:
                 return ""
             return '\n'.join([f"{item}" for item in items_list])
@@ -1043,23 +1155,24 @@ def generate_ppt():
                 ]
         default_kmi_bullets = format_as_bullets(default_kmiitems)
         user_kmi_bullets = format_as_bullets(kmi_items) if kmi_items else ""
-        # Get companies from form input
+        
         companies_input = form_data['companies'].strip()
         company_list = [company.strip() for company in companies_input.split('\n') if company.strip()]
         
         if not company_list:
+            logger.warning(f"[{request_id}] No companies provided")
             return jsonify({
                 'error': 'At least one company must be provided',
                 'message': 'Please provide company names, one per line'
             }), 400
         
-        # Parse segment input
+        logger.info(f"[{request_id}] Processing {len(company_list)} companies")
+        
         nested_dict = parse_segment_input(segment_input)
         main_topic = list(nested_dict.keys())
         s_segment = "By " + "\nBy ".join(main_topic)
         user_segment = "By " + ", By ".join(main_topic)
 
-        # Generate context
         output_lines = []
         for main_type, points in nested_dict.items():
             line_parts = []
@@ -1074,9 +1187,8 @@ def generate_ppt():
             "By Region: North America, Europe, Asia-Pacific, Latin America, Middle East & Africa"
         )
         context = "\n".join(output_lines)
-        print(f"Generated context: {context}")
+        logger.info(f"[{request_id}] Context generated successfully")
         
-        # Generate TOC
         toc_data_levels = generate_toc_data(nested_dict, headline, forecast_period, user_segment, kmi_items)
 
         ai_context = {
@@ -1094,11 +1206,12 @@ def generate_ppt():
             'company_name': company_list[0] 
         }
         
-        print("Starting parallel AI content generation...")
+        logger.info(f"[{request_id}] Starting AI content generation")
+        ai_start_time = time.time()
         ai_results = ai_service.generate_content_parallel(ai_context)
-        print("Completed parallel AI content generation")
+        ai_elapsed = time.time() - ai_start_time
+        timing_logger.info(f"[{request_id}] AI content generation completed in {ai_elapsed:.2f}s")
         
-        # Extract results
         mpara_11 = ai_results['executive_summary']
         para_11 = ai_results['market_enablers']
         para_14_dict = ai_results['industry_expansion']
@@ -1115,11 +1228,8 @@ def generate_ppt():
         para_15 = '\n'.join(para_15_dict['paragraphs'])
         para_14 = '\n'.join(para_14_dict['paragraphs'])
         
-        print(f"Generated research journals: {research_journals}")
-        print(f"Generated industry associations: {industry_associations}")
-        print(f"Generated company info: {company_info}")
+        logger.info(f"[{request_id}] AI content extracted successfully")
         
-        # Add company profiles to TOC
         x = len(main_topic) + 6
 
         first_company = company_list[0]
@@ -1139,7 +1249,6 @@ def generate_ppt():
             f"BY {key.upper()}": list(value.keys()) for key, value in nested_dict.items()
         }
        
-        # --- Slide Data Dictionary ---
         slide_data = {
             0: {
                 "heading": headline_2,
@@ -1270,15 +1379,20 @@ def generate_ppt():
             35: {"company": company_info["company_name"].upper()},
         }
 
-        # --- PRESENTATION MODIFICATION ---
-        print("Loading base presentation 'testppt.pptx'...")
-        if not os.path.exists("testppt.pptx"):
+        logger.info(f"[{request_id}] Starting presentation modification")
+        ppt_start_time = time.time()
+        
+        template_path = "testppt.pptx"
+        if not os.path.exists(template_path):
+            logger.error(f"[{request_id}] Template file not found: {template_path}")
             return jsonify({
                 'error': 'Template file not found',
                 'message': 'Please ensure testppt.pptx is in the project directory'
             }), 500
             
-        prs = Presentation("testppt.pptx")
+        logger.info(f"[{request_id}] Loading base presentation")
+        prs = Presentation(template_path)
+        
         for slide in prs.slides:
             data = slide_data.get(prs.slides.index(slide), {})
             for shape in slide.shapes:
@@ -1288,7 +1402,6 @@ def generate_ppt():
                             token = f"{{{{{key}}}}}"
                             replace_text_in_paragraph(paragraph, token, value)
 
-        # Apply color-preserving text replacement
         for slide in prs.slides:
             data = slide_data.get(prs.slides.index(slide), {})
             for shape in slide.shapes:
@@ -1298,61 +1411,51 @@ def generate_ppt():
                             token = f"{{{{{key}}}}}"
                             replace_text_preserving_color(paragraph, token, value)
 
-        # Step 2: Add taxonomy boxes to slide 2 (index 1)
-        print("Adding taxonomy boxes...")
+        logger.info(f"[{request_id}] Adding taxonomy boxes")
         generator = TaxonomyBoxGenerator(prs)
         generator.add_taxonomy_boxes(1, table_taxonomy)
 
-        # Step 3: Perform text replacements in tables on specific slides
-        print("Performing text replacements inside tables...")
+        logger.info(f"[{request_id}] Performing text replacements in tables")
         table_slide_indices = [10,13, 16, 17,18,19,21, 23, 24, 25, 26,27, 28,29,30,31, 32, 33,34,35]
         replace_text_in_tables(prs, table_slide_indices, slide_data)
 
-        # Step 4: Add and populate the Table of Contents slides
-        print("Creating Table of Contents...")
+        logger.info(f"[{request_id}] Creating Table of Contents")
         toc_slide_indices = [4, 5, 6, 7]
         add_toc_to_slides(prs, toc_data_levels, toc_slide_indices)
 
-        # Step 5: Add tables and charts
+        logger.info(f"[{request_id}] Adding tables and charts")
         target_slide_indices = [24, 27, 28]
         graph_table = list(nested_dict[main_topic[0]].keys()) if main_topic else []
         total_rows = len(graph_table)
         
-        # Logic for row labels
         row_labels = graph_table.copy() 
         row_labels.append("Total")
 
-        # Table columns
         years = [str(y) for y in range(2019, 2033)]
         columns = [""] + years + ["CAGR (2025–2032)"]
         num_rows = len(row_labels) + 1
         num_cols = len(columns)
 
-        # Color definitions
         header_rgb = RGBColor(49, 6, 126)
         border_rgb = RGBColor(166, 166, 166)
         alt_row_colors = [RGBColor(231, 231, 231), RGBColor(255, 255, 255)]
 
-        # Font family mappings
         font_mapping = {
             "header": "Poppins Bold",
             "first_col": "Poppins Bold",
             "values": "Poppins Medium",
         }
 
-        # Loop through slides for tables
         for slide_index in target_slide_indices:
             if slide_index < len(prs.slides):
                 slide = prs.slides[slide_index]
 
-                # Table placement
                 left = Inches(0.45)
                 top = Inches(4.05)
                 width = Inches(8.7)
                 height = Inches(0.72 + num_rows * 0.3)
                 table = slide.shapes.add_table(num_rows, num_cols, left, top, width, height).table
 
-                # Populate header row
                 for col_index, header in enumerate(columns):
                     cell = table.cell(0, col_index)
                     cell.fill.solid()
@@ -1381,14 +1484,12 @@ def generate_ppt():
                     run.font.name = font_mapping["header"]
 
 
-                # Populate data rows
                 for row_index, label in enumerate(row_labels, start=1):
                     row_color = alt_row_colors[(row_index - 1) % 2]
 
                     for col_index in range(num_cols):
                         cell = table.cell(row_index, col_index)
 
-                        # Fill content
                         if col_index == 0:
                             cell.text = label
                         elif col_index == num_cols - 1:
@@ -1417,7 +1518,6 @@ def generate_ppt():
                         cell.fill.fore_color.rgb = row_color
                         set_cell_border(cell)
 
-                # Column widths
                 for col_index in range(num_cols):
                     if col_index == 0:
                         table.columns[col_index].width = Inches(1)
@@ -1426,32 +1526,34 @@ def generate_ppt():
                     else:
                         table.columns[col_index].width = Inches(0.4)
 
-        # Add charts to slides
         if main_topic:
-            # Determine Columns
             chart_columns = graph_table
 
-            # Insert Chart in Each Slide
             for idx in target_slide_indices:
                 if idx < len(prs.slides):
                     slide = prs.slides[idx]
                     data = generate_actual_data()
                     
-                    # Create chart
                     create_chart_on_slide(
                         slide, data, chart_columns,
                         Inches(0.4), Inches(1.1), Inches(12.5), Inches(2.8)
                     )
 
-        # Save the final presentation with market name as filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         clean_market_name = clean_filename(headline)
         filename = f"{clean_market_name}_{timestamp}.pptx"
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
-        print(f"Saving the final presentation to '{filepath}'...")
+        logger.info(f"[{request_id}] Saving presentation to: {filepath}")
         prs.save(filepath)
-        print("✅ Script finished successfully!")
+        
+        ppt_elapsed = time.time() - ppt_start_time
+        total_elapsed = time.time() - start_time
+        
+        timing_logger.info(f"[{request_id}] PPT processing completed in {ppt_elapsed:.2f}s")
+        timing_logger.info(f"[{request_id}] Total request completed in {total_elapsed:.2f}s")
+        
+        logger.info(f"[{request_id}] PPT generation completed successfully: {filename}")
         
         return jsonify({
             'success': True,
@@ -1460,6 +1562,8 @@ def generate_ppt():
         })
         
     except Exception as e:
+        elapsed = time.time() - start_time
+        logger.error(f"[{request_id}] PPT generation failed after {elapsed:.2f}s: {str(e)}")
         traceback.print_exc()
         return jsonify({
             'error': 'Failed to generate PowerPoint',
@@ -1469,24 +1573,26 @@ def generate_ppt():
 
 @app.route('/download/<path:filename>')
 def download_file(filename):
+    download_start_time = time.time()
+    logger.info(f"Download request for file: {filename}")
+    
     try:
         import urllib.parse
         decoded_filename = urllib.parse.unquote(filename)
         
         if '..' in decoded_filename or '/' in decoded_filename or '\\' in decoded_filename:
+            logger.warning(f"Invalid filename attempted: {decoded_filename}")
             return jsonify({'error': 'Invalid filename'}), 400
         
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], decoded_filename)
         
-        print(f"Looking for file: {filepath}")
-        print(f"File exists: {os.path.exists(filepath)}")
-        
         if not os.path.exists(filepath):
+            logger.warning(f"File not found: {filepath}")
             try:
                 available_files = os.listdir(app.config['UPLOAD_FOLDER'])
-                print(f"Available files: {available_files}")
+                logger.info(f"Available files: {available_files}")
             except:
-                print("Could not list available files")
+                logger.error("Could not list available files")
             return jsonify({'error': 'File not found'}), 404
         
         def remove_file_after_send(filepath):
@@ -1494,9 +1600,9 @@ def download_file(filename):
                 try:
                     if os.path.exists(filepath):
                         os.remove(filepath)
-                        print(f"Temporary file deleted: {filepath}")
+                        logger.info(f"Temporary file deleted: {filepath}")
                 except Exception as e:
-                    print(f"Error deleting file: {e}")
+                    logger.error(f"Error deleting file: {e}")
                 return response
             return remove_file
         
@@ -1507,14 +1613,18 @@ def download_file(filename):
             try:
                 if os.path.exists(filepath):
                     os.remove(filepath)
-                    print(f"Temporary file deleted after download: {filepath}")
+                    logger.info(f"Temporary file deleted after download: {filepath}")
             except Exception as e:
-                print(f"Error deleting file after download: {e}")
+                logger.error(f"Error deleting file after download: {e}")
+        
+        elapsed = time.time() - download_start_time
+        timing_logger.info(f"File download completed in {elapsed:.2f}s: {decoded_filename}")
         
         return response
         
     except Exception as e:
-        print(f"Download error: {e}")
+        elapsed = time.time() - download_start_time
+        logger.error(f"Download failed after {elapsed:.2f}s: {e}")
         return jsonify({'error': 'File download failed', 'details': str(e)}), 500
 
 
@@ -1523,10 +1633,11 @@ if __name__ == '__main__':
         with open('.env', 'w') as f:
             f.write('OPENAI_API_KEY=your_openai_api_key_here\n')
             f.write('GEMINI_API_KEY=your_gemini_api_key_here\n')
-        print("Created .env file. Please add your API keys.")
+        logger.info("Created .env file. Please add your API keys.")
     
     if not os.path.exists('templates/index.html'):
         os.makedirs('templates', exist_ok=True)
-        print("Please save the HTML content from the artifact to templates/index.html")
+        logger.warning("Please save the HTML content from the artifact to templates/index.html")
     
+    logger.info("Starting Flask application")
     app.run(host="0.0.0.0",debug=True, port=5000,)

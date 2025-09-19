@@ -126,3 +126,15 @@ By Region: North America, Europe, Asia-Pacific, Latin America, Middle East & Afr
 2025-09-19 12:05:10,658 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\OneDrive\\Desktop\\SQ\\ppt-generator\\app.py', reloading
 2025-09-19 12:05:10,659 - werkzeug - INFO - [background-thread] -  * Detected change in 'C:\\Users\\adity\\OneDrive\\Desktop\\SQ\\ppt-generator\\app.py', reloading
 2025-09-19 12:05:11,431 - werkzeug - INFO - [background-thread] -  * Restarting with watchdog (windowsapi)
+2025-09-19 12:57:39 - research_journals completed in 10.24s
+2025-09-19 12:57:40 - executive_summary completed in 10.77s
+2025-09-19 12:57:48 - industry_associations completed in 19.67s
+2025-09-19 12:57:57 - market_enablers completed in 28.60s
+2025-09-19 12:59:16 - investment_challenges completed in 106.93s
+2025-09-19 12:59:46 - industry_expansion completed in 136.82s
+2025-09-19 12:59:54 - company_info completed in 145.73s
+2025-09-19 13:00:55 - industry_expansion_1 completed in 60.67s
+2025-09-19 13:00:55 - Parallel AI generation completed in 206.40s
+2025-09-19 13:00:55 - [req_1758266849] AI content generation completed in 206.41s
+2025-09-19 13:00:56 - [req_1758266849] PPT processing completed in 0.87s
+2025-09-19 13:00:56 - [req_1758266849] Total request completed in 207.28s
