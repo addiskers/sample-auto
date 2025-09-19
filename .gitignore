@@ -1,1 +1,12 @@
 .env
+
+
+# Jupyter Notebooks
+*.ipynb
+
+# Python scripts (only specific one)
+app copy.py
+
+# Common Python ignores (optional, good practice)
+__pycache__/
+*.pyc
