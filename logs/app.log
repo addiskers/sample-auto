@@ -239,3 +239,242 @@ By Region: North America, Europe, Asia-Pacific, Latin America, Middle East & Afr
 2025-09-19 13:55:15 - ppt_generator - INFO - Initializing AI Service
 2025-09-19 13:55:15 - ppt_generator - INFO - Gemini configured successfully
 2025-09-19 13:55:15 - ppt_generator - INFO - Starting Flask application
+2025-09-19 13:57:18 - ppt_generator - INFO - Index page accessed
+2025-09-19 13:59:07 - ppt_generator - INFO - [req_1758270547] PPT generation request started
+2025-09-19 13:59:07 - ppt_generator - INFO - Validating segment hierarchy
+2025-09-19 13:59:07 - ppt_generator - INFO - Segment hierarchy validation passed
+2025-09-19 13:59:07 - ppt_generator - INFO - [req_1758270547] Form validation passed
+2025-09-19 13:59:07 - ppt_generator - INFO - [req_1758270547] Custom KMI items provided: 4
+2025-09-19 13:59:07 - ppt_generator - INFO - [req_1758270547] Processing 20 companies
+2025-09-19 13:59:07 - ppt_generator - INFO - Parsing segment input
+2025-09-19 13:59:07 - ppt_generator - INFO - Segment input parsed successfully: 3 main categories
+2025-09-19 13:59:07 - ppt_generator - INFO - [req_1758270547] Context generated successfully
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating Table of Contents data
+2025-09-19 13:59:07 - ppt_generator - INFO - TOC data generated with 85 items
+2025-09-19 13:59:07 - ppt_generator - INFO - [req_1758270547] Starting AI content generation
+2025-09-19 13:59:07 - ppt_generator - INFO - Starting parallel AI content generation
+2025-09-19 13:59:07 - ppt_generator - INFO - Phase 1: Executing 7 tasks in parallel
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating content for: executive_summary
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating content for: market_enablers
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating content for: industry_expansion
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating executive summary
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating content for: investment_challenges
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating content for: research_journals
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating market enablers
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating content for: industry_associations
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating industry expansion
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating content for: company_info
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating investment challenges
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating research journals
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating industry associations
+2025-09-19 13:59:07 - ppt_generator - INFO - Generating company info for: Mitsubishi Electric Corporation
+2025-09-19 13:59:17 - ppt_generator - INFO - Industry associations generated: 5 items
+2025-09-19 13:59:17 - ppt_generator - INFO - Content generation completed for: industry_associations
+2025-09-19 13:59:17 - ppt_generator - INFO - Phase 1 task completed: industry_associations
+2025-09-19 13:59:19 - ppt_generator - INFO - Executive summary generated successfully
+2025-09-19 13:59:19 - ppt_generator - INFO - Content generation completed for: executive_summary
+2025-09-19 13:59:19 - ppt_generator - INFO - Phase 1 task completed: executive_summary
+2025-09-19 13:59:31 - ppt_generator - INFO - Research journals generated: 5 items
+2025-09-19 13:59:31 - ppt_generator - INFO - Content generation completed for: research_journals
+2025-09-19 13:59:31 - ppt_generator - INFO - Phase 1 task completed: research_journals
+2025-09-19 13:59:33 - ppt_generator - INFO - Market enablers generated successfully
+2025-09-19 13:59:33 - ppt_generator - INFO - Content generation completed for: market_enablers
+2025-09-19 13:59:33 - ppt_generator - INFO - Phase 1 task completed: market_enablers
+2025-09-19 14:00:09 - ppt_generator - INFO - Investment challenges generated successfully
+2025-09-19 14:00:09 - ppt_generator - INFO - Content generation completed for: investment_challenges
+2025-09-19 14:00:09 - ppt_generator - INFO - Phase 1 task completed: investment_challenges
+2025-09-19 14:00:33 - ppt_generator - INFO - Industry expansion generated successfully
+2025-09-19 14:00:33 - ppt_generator - INFO - Content generation completed for: industry_expansion
+2025-09-19 14:00:33 - ppt_generator - INFO - Phase 1 task completed: industry_expansion
+2025-09-19 14:02:37 - ppt_generator - INFO - Company info generated successfully
+2025-09-19 14:02:37 - ppt_generator - INFO - Content generation completed for: company_info
+2025-09-19 14:02:37 - ppt_generator - INFO - Phase 1 task completed: company_info
+2025-09-19 14:02:37 - ppt_generator - INFO - Phase 1 completed, starting Phase 2
+2025-09-19 14:02:37 - ppt_generator - INFO - Generating content for: industry_expansion_1
+2025-09-19 14:02:37 - ppt_generator - INFO - Generating industry expansion 1 (avoiding title: Rising Adoption of Renewable Energy and Electrified Infrastructure)
+2025-09-19 14:03:21 - ppt_generator - INFO - Industry expansion 1 generated successfully
+2025-09-19 14:03:21 - ppt_generator - INFO - Content generation completed for: industry_expansion_1
+2025-09-19 14:03:21 - ppt_generator - INFO - Parallel AI content generation completed successfully
+2025-09-19 14:03:21 - ppt_generator - INFO - [req_1758270547] AI content extracted successfully
+2025-09-19 14:03:21 - ppt_generator - INFO - [req_1758270547] Starting presentation modification
+2025-09-19 14:03:21 - ppt_generator - INFO - [req_1758270547] Loading base presentation
+2025-09-19 14:03:21 - ppt_generator - INFO - [req_1758270547] Adding taxonomy boxes
+2025-09-19 14:03:21 - ppt_generator - INFO - Adding taxonomy boxes to slide 1
+2025-09-19 14:03:21 - ppt_generator - INFO - Taxonomy boxes added successfully to slide 1
+2025-09-19 14:03:21 - ppt_generator - INFO - [req_1758270547] Performing text replacements in tables
+2025-09-19 14:03:21 - ppt_generator - INFO - Starting text replacement in tables for slides: [10, 13, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+2025-09-19 14:03:21 - ppt_generator - INFO - Text replacement in tables completed
+2025-09-19 14:03:21 - ppt_generator - INFO - [req_1758270547] Creating Table of Contents
+2025-09-19 14:03:21 - ppt_generator - INFO - Adding TOC to slides: [4, 5, 6, 7]
+2025-09-19 14:03:21 - ppt_generator - INFO - TOC added to slides successfully
+2025-09-19 14:03:21 - ppt_generator - INFO - [req_1758270547] Adding tables and charts
+2025-09-19 14:03:22 - ppt_generator - INFO - Creating chart with 5 series and 14 data points
+2025-09-19 14:03:22 - ppt_generator - INFO - Chart created successfully
+2025-09-19 14:03:22 - ppt_generator - INFO - Creating chart with 5 series and 14 data points
+2025-09-19 14:03:22 - ppt_generator - INFO - Chart created successfully
+2025-09-19 14:03:22 - ppt_generator - INFO - Creating chart with 5 series and 14 data points
+2025-09-19 14:03:22 - ppt_generator - INFO - Chart created successfully
+2025-09-19 14:03:22 - ppt_generator - INFO - Cleaning filename: Global Low Voltage DC Circuit Breaker Market
+2025-09-19 14:03:22 - ppt_generator - INFO - Cleaned filename: Global Low Voltage DC Circuit Breaker Market
+2025-09-19 14:03:22 - ppt_generator - INFO - [req_1758270547] Saving presentation to: generated_ppts\Global Low Voltage DC Circuit Breaker Market_20250919_140322.pptx
+2025-09-19 14:03:22 - ppt_generator - INFO - [req_1758270547] PPT generation completed successfully: Global Low Voltage DC Circuit Breaker Market_20250919_140322.pptx
+2025-09-19 14:05:28 - ppt_generator - INFO - Download request for file: Global Low Voltage DC Circuit Breaker Market_20250919_140322.pptx
+2025-09-19 14:59:34 - ppt_generator - INFO - Index page accessed
+2025-09-19 15:04:39 - ppt_generator - INFO - [req_1758274479] PPT generation request started
+2025-09-19 15:04:39 - ppt_generator - INFO - Validating segment hierarchy
+2025-09-19 15:04:39 - ppt_generator - INFO - Segment hierarchy validation passed
+2025-09-19 15:04:39 - ppt_generator - INFO - [req_1758274479] Form validation passed
+2025-09-19 15:04:39 - ppt_generator - INFO - [req_1758274479] Custom KMI items provided: 2
+2025-09-19 15:04:39 - ppt_generator - INFO - [req_1758274479] Processing 20 companies
+2025-09-19 15:04:39 - ppt_generator - INFO - Parsing segment input
+2025-09-19 15:04:39 - ppt_generator - INFO - Segment input parsed successfully: 5 main categories
+2025-09-19 15:04:39 - ppt_generator - INFO - [req_1758274479] Context generated successfully
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating Table of Contents data
+2025-09-19 15:04:39 - ppt_generator - INFO - TOC data generated with 98 items
+2025-09-19 15:04:39 - ppt_generator - INFO - [req_1758274479] Starting AI content generation
+2025-09-19 15:04:39 - ppt_generator - INFO - Starting parallel AI content generation
+2025-09-19 15:04:39 - ppt_generator - INFO - Phase 1: Executing 7 tasks in parallel
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating content for: executive_summary
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating content for: market_enablers
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating executive summary
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating market enablers
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating content for: industry_expansion
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating content for: investment_challenges
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating content for: research_journals
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating content for: industry_associations
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating industry expansion
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating content for: company_info
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating investment challenges
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating research journals
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating industry associations
+2025-09-19 15:04:39 - ppt_generator - INFO - Generating company info for: Alteryx
+2025-09-19 15:04:46 - ppt_generator - INFO - Research journals generated: 5 items
+2025-09-19 15:04:46 - ppt_generator - INFO - Content generation completed for: research_journals
+2025-09-19 15:04:46 - ppt_generator - INFO - Phase 1 task completed: research_journals
+2025-09-19 15:04:46 - ppt_generator - INFO - Executive summary generated successfully
+2025-09-19 15:04:46 - ppt_generator - INFO - Content generation completed for: executive_summary
+2025-09-19 15:04:46 - ppt_generator - INFO - Phase 1 task completed: executive_summary
+2025-09-19 15:04:51 - ppt_generator - INFO - Industry associations generated: 5 items
+2025-09-19 15:04:51 - ppt_generator - INFO - Content generation completed for: industry_associations
+2025-09-19 15:04:51 - ppt_generator - INFO - Phase 1 task completed: industry_associations
+2025-09-19 15:05:02 - ppt_generator - INFO - Market enablers generated successfully
+2025-09-19 15:05:02 - ppt_generator - INFO - Content generation completed for: market_enablers
+2025-09-19 15:05:02 - ppt_generator - INFO - Phase 1 task completed: market_enablers
+2025-09-19 15:05:50 - ppt_generator - INFO - Investment challenges generated successfully
+2025-09-19 15:05:50 - ppt_generator - INFO - Content generation completed for: investment_challenges
+2025-09-19 15:05:50 - ppt_generator - INFO - Phase 1 task completed: investment_challenges
+2025-09-19 15:05:57 - ppt_generator - INFO - Industry expansion generated successfully
+2025-09-19 15:05:57 - ppt_generator - INFO - Content generation completed for: industry_expansion
+2025-09-19 15:05:57 - ppt_generator - INFO - Phase 1 task completed: industry_expansion
+2025-09-19 15:06:00 - ppt_generator - INFO - Company info generated successfully
+2025-09-19 15:06:00 - ppt_generator - INFO - Content generation completed for: company_info
+2025-09-19 15:06:00 - ppt_generator - INFO - Phase 1 task completed: company_info
+2025-09-19 15:06:00 - ppt_generator - INFO - Phase 1 completed, starting Phase 2
+2025-09-19 15:06:00 - ppt_generator - INFO - Generating content for: industry_expansion_1
+2025-09-19 15:06:00 - ppt_generator - INFO - Generating industry expansion 1 (avoiding title: Cloud Adoption Driving Demand for Modern ETL Tools)
+2025-09-19 15:06:54 - ppt_generator - INFO - Industry expansion 1 generated successfully
+2025-09-19 15:06:54 - ppt_generator - INFO - Content generation completed for: industry_expansion_1
+2025-09-19 15:06:54 - ppt_generator - INFO - Parallel AI content generation completed successfully
+2025-09-19 15:06:54 - ppt_generator - INFO - [req_1758274479] AI content extracted successfully
+2025-09-19 15:06:54 - ppt_generator - INFO - [req_1758274479] Starting presentation modification
+2025-09-19 15:06:54 - ppt_generator - INFO - [req_1758274479] Loading base presentation
+2025-09-19 15:06:54 - ppt_generator - INFO - [req_1758274479] Adding taxonomy boxes
+2025-09-19 15:06:54 - ppt_generator - INFO - Adding taxonomy boxes to slide 1
+2025-09-19 15:06:54 - ppt_generator - INFO - Taxonomy boxes added successfully to slide 1
+2025-09-19 15:06:54 - ppt_generator - INFO - [req_1758274479] Performing text replacements in tables
+2025-09-19 15:06:54 - ppt_generator - INFO - Starting text replacement in tables for slides: [10, 13, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+2025-09-19 15:06:54 - ppt_generator - INFO - Text replacement in tables completed
+2025-09-19 15:06:54 - ppt_generator - INFO - [req_1758274479] Creating Table of Contents
+2025-09-19 15:06:54 - ppt_generator - INFO - Adding TOC to slides: [4, 5, 6, 7]
+2025-09-19 15:06:54 - ppt_generator - INFO - TOC added to slides successfully
+2025-09-19 15:06:54 - ppt_generator - INFO - [req_1758274479] Adding tables and charts
+2025-09-19 15:06:54 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 15:06:54 - ppt_generator - INFO - Chart created successfully
+2025-09-19 15:06:54 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 15:06:54 - ppt_generator - INFO - Chart created successfully
+2025-09-19 15:06:54 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 15:06:54 - ppt_generator - INFO - Chart created successfully
+2025-09-19 15:06:54 - ppt_generator - INFO - Cleaning filename: ETL Software Market
+2025-09-19 15:06:54 - ppt_generator - INFO - Cleaned filename: ETL Software Market
+2025-09-19 15:06:54 - ppt_generator - INFO - [req_1758274479] Saving presentation to: generated_ppts\ETL Software Market_20250919_150654.pptx
+2025-09-19 15:06:55 - ppt_generator - INFO - [req_1758274479] PPT generation completed successfully: ETL Software Market_20250919_150654.pptx
+2025-09-19 15:07:58 - ppt_generator - INFO - Download request for file: ETL Software Market_20250919_150654.pptx
+2025-09-19 15:12:15 - ppt_generator - INFO - [req_1758274935] PPT generation request started
+2025-09-19 15:12:15 - ppt_generator - INFO - Validating segment hierarchy
+2025-09-19 15:12:15 - ppt_generator - INFO - Segment hierarchy validation passed
+2025-09-19 15:12:15 - ppt_generator - INFO - [req_1758274935] Form validation passed
+2025-09-19 15:12:15 - ppt_generator - INFO - [req_1758274935] Custom KMI items provided: 2
+2025-09-19 15:12:15 - ppt_generator - INFO - [req_1758274935] Processing 20 companies
+2025-09-19 15:12:15 - ppt_generator - INFO - Parsing segment input
+2025-09-19 15:12:15 - ppt_generator - INFO - Segment input parsed successfully: 5 main categories
+2025-09-19 15:12:15 - ppt_generator - INFO - [req_1758274935] Context generated successfully
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating Table of Contents data
+2025-09-19 15:12:15 - ppt_generator - INFO - TOC data generated with 98 items
+2025-09-19 15:12:15 - ppt_generator - INFO - [req_1758274935] Starting AI content generation
+2025-09-19 15:12:15 - ppt_generator - INFO - Starting parallel AI content generation
+2025-09-19 15:12:15 - ppt_generator - INFO - Phase 1: Executing 7 tasks in parallel
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating content for: executive_summary
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating executive summary
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating content for: market_enablers
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating content for: industry_expansion
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating content for: investment_challenges
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating content for: research_journals
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating content for: industry_associations
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating content for: company_info
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating market enablers
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating industry expansion
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating investment challenges
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating research journals
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating industry associations
+2025-09-19 15:12:15 - ppt_generator - INFO - Generating company info for: Microsoft Corporation
+2025-09-19 15:12:23 - ppt_generator - INFO - Industry associations generated: 5 items
+2025-09-19 15:12:23 - ppt_generator - INFO - Content generation completed for: industry_associations
+2025-09-19 15:12:23 - ppt_generator - INFO - Phase 1 task completed: industry_associations
+2025-09-19 15:12:23 - ppt_generator - INFO - Research journals generated: 5 items
+2025-09-19 15:12:23 - ppt_generator - INFO - Content generation completed for: research_journals
+2025-09-19 15:12:23 - ppt_generator - INFO - Phase 1 task completed: research_journals
+2025-09-19 15:12:24 - ppt_generator - INFO - Executive summary generated successfully
+2025-09-19 15:12:24 - ppt_generator - INFO - Content generation completed for: executive_summary
+2025-09-19 15:12:24 - ppt_generator - INFO - Phase 1 task completed: executive_summary
+2025-09-19 15:12:38 - ppt_generator - INFO - Market enablers generated successfully
+2025-09-19 15:12:38 - ppt_generator - INFO - Content generation completed for: market_enablers
+2025-09-19 15:12:38 - ppt_generator - INFO - Phase 1 task completed: market_enablers
+2025-09-19 15:13:11 - ppt_generator - INFO - Investment challenges generated successfully
+2025-09-19 15:13:11 - ppt_generator - INFO - Content generation completed for: investment_challenges
+2025-09-19 15:13:11 - ppt_generator - INFO - Phase 1 task completed: investment_challenges
+2025-09-19 15:13:26 - ppt_generator - INFO - Industry expansion generated successfully
+2025-09-19 15:13:26 - ppt_generator - INFO - Content generation completed for: industry_expansion
+2025-09-19 15:13:26 - ppt_generator - INFO - Phase 1 task completed: industry_expansion
+2025-09-19 15:13:44 - ppt_generator - INFO - Company info generated successfully
+2025-09-19 15:13:44 - ppt_generator - INFO - Content generation completed for: company_info
+2025-09-19 15:13:44 - ppt_generator - INFO - Phase 1 task completed: company_info
+2025-09-19 15:13:44 - ppt_generator - INFO - Phase 1 completed, starting Phase 2
+2025-09-19 15:13:44 - ppt_generator - INFO - Generating content for: industry_expansion_1
+2025-09-19 15:13:44 - ppt_generator - INFO - Generating industry expansion 1 (avoiding title: Demand for Real-time Data Integration and Streaming Analytics)
+2025-09-19 15:15:30 - ppt_generator - INFO - Industry expansion 1 generated successfully
+2025-09-19 15:15:30 - ppt_generator - INFO - Content generation completed for: industry_expansion_1
+2025-09-19 15:15:30 - ppt_generator - INFO - Parallel AI content generation completed successfully
+2025-09-19 15:15:30 - ppt_generator - INFO - [req_1758274935] AI content extracted successfully
+2025-09-19 15:15:30 - ppt_generator - INFO - [req_1758274935] Starting presentation modification
+2025-09-19 15:15:30 - ppt_generator - INFO - [req_1758274935] Loading base presentation
+2025-09-19 15:15:30 - ppt_generator - INFO - [req_1758274935] Adding taxonomy boxes
+2025-09-19 15:15:30 - ppt_generator - INFO - Adding taxonomy boxes to slide 1
+2025-09-19 15:15:30 - ppt_generator - INFO - Taxonomy boxes added successfully to slide 1
+2025-09-19 15:15:30 - ppt_generator - INFO - [req_1758274935] Performing text replacements in tables
+2025-09-19 15:15:30 - ppt_generator - INFO - Starting text replacement in tables for slides: [10, 13, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+2025-09-19 15:15:30 - ppt_generator - INFO - Text replacement in tables completed
+2025-09-19 15:15:30 - ppt_generator - INFO - [req_1758274935] Creating Table of Contents
+2025-09-19 15:15:30 - ppt_generator - INFO - Adding TOC to slides: [4, 5, 6, 7]
+2025-09-19 15:15:30 - ppt_generator - INFO - TOC added to slides successfully
+2025-09-19 15:15:30 - ppt_generator - INFO - [req_1758274935] Adding tables and charts
+2025-09-19 15:15:30 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 15:15:30 - ppt_generator - INFO - Chart created successfully
+2025-09-19 15:15:30 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 15:15:30 - ppt_generator - INFO - Chart created successfully
+2025-09-19 15:15:30 - ppt_generator - INFO - Creating chart with 2 series and 14 data points
+2025-09-19 15:15:30 - ppt_generator - INFO - Chart created successfully
+2025-09-19 15:15:30 - ppt_generator - INFO - Cleaning filename: ETL Software Market
+2025-09-19 15:15:30 - ppt_generator - INFO - Cleaned filename: ETL Software Market
+2025-09-19 15:15:30 - ppt_generator - INFO - [req_1758274935] Saving presentation to: generated_ppts\ETL Software Market_20250919_151530.pptx
+2025-09-19 15:15:31 - ppt_generator - INFO - [req_1758274935] PPT generation completed successfully: ETL Software Market_20250919_151530.pptx
+2025-09-19 15:16:13 - ppt_generator - INFO - Download request for file: ETL Software Market_20250919_151530.pptx

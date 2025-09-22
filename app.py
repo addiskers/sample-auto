@@ -326,7 +326,7 @@ class AIService:
         The short_description_company should be around 100 words. I want you to act as a Research Analyst and give Company Overview of "{context["company_name"]}" in around 10-11 lines (In one paragraph only) which should not talk about Headquarter Country, Establishment/Foundation Year, Number of Employees or Revenue and should not use any marketing/promotional words like, largest, prominent, diversified, recognized, among others (You can talk about its product/service related to {context["headline"]}, market presence, business strategy, recent developments, etc) like this for tone:
         Schlumberger Ltd (SLB) provides technology for reservoir characterization, production, drilling and processing to the oil and gas industry. The company supplies its products and services to the industry, from exploration through production and integrated pipeline solutions for hydrocarbon recovery. SLB's products and services include open-hole and cased-hole wireline logging; drilling services; well completion services, including well testing and artificial lift; well services such as cementing, coiled tubing, stimulations, and sand control; interpretation and consulting services; and integrated project management. The company has an operational presence in North America, Latin America, Europe and Africa, the Middle East and Asia. SLB is headquartered in Houston, Texas, the US..
 .       website should be the official website no Https ot http.
-        revenue should be in the format " X.XX billion" or " X.XX million" and should be correct 2024 data in USD .
+        revenue should be in the format " X.XX billion" or " X.XX million" and should be correct 2024 data in USD only correct data must strict.
         ownership should be either "Public" or "Private".
         top product should be a product or service relevant to the headline market.
         description_product should be 50 words describing the top product.
@@ -1120,7 +1120,7 @@ def generate_ppt():
         
         headline = form_data['headline']
         headline_2 = headline.upper()
-        headline_3 = headline_2.replace("Global", "").strip()
+        headline_3 = headline_2.replace("GLOBAL", "").strip()
         historical_year = "2019-2023"
         base_year = "2024"
         forecast_year = "2032"
@@ -1351,7 +1351,7 @@ def generate_ppt():
             },
             30: {"heading": headline},
             31: {
-                "company": company_info["company_name"],
+                "company": company_info["company_name"].upper(),
                 "e": company_info["employee_count"],
                 "h": company_info["headquarters"],
                 "geo": company_info["geographic_presence"],
@@ -1571,7 +1571,7 @@ def generate_ppt():
         }), 500
 
 
-@app.route('/download/<path:filename>')
+@app.route('/download')
 def download_file(filename):
     download_start_time = time.time()
     logger.info(f"Download request for file: {filename}")
