@@ -1633,3 +1633,99 @@ By Region: North America, Europe, Asia-Pacific, Latin America, Middle East & Afr
 2025-09-23 15:24:11 - ppt_generator - INFO - Initializing AI Service
 2025-09-23 15:24:11 - ppt_generator - INFO - Gemini configured successfully
 2025-09-23 15:24:11 - ppt_generator - INFO - Starting Flask application
+2025-09-23 15:34:45 - ppt_generator - INFO - Application starting up
+2025-09-23 15:34:45 - ppt_generator - INFO - Upload folder: generated_ppts
+2025-09-23 15:34:45 - ppt_generator - INFO - Template folder: templates
+2025-09-23 15:34:45 - ppt_generator - INFO - OpenAI API key loaded successfully
+2025-09-23 15:34:45 - ppt_generator - INFO - Gemini API key loaded successfully
+2025-09-23 15:34:45 - ppt_generator - INFO - Initializing AI Service globally
+2025-09-23 15:34:45 - ppt_generator - INFO - Initializing AI Service
+2025-09-23 15:34:45 - ppt_generator - INFO - Gemini configured successfully
+2025-09-23 15:34:45 - ppt_generator - INFO - Starting Flask application
+2025-09-23 15:34:48 - ppt_generator - INFO - Application starting up
+2025-09-23 15:34:48 - ppt_generator - INFO - Upload folder: generated_ppts
+2025-09-23 15:34:48 - ppt_generator - INFO - Template folder: templates
+2025-09-23 15:34:48 - ppt_generator - INFO - OpenAI API key loaded successfully
+2025-09-23 15:34:48 - ppt_generator - INFO - Gemini API key loaded successfully
+2025-09-23 15:34:49 - ppt_generator - INFO - Initializing AI Service globally
+2025-09-23 15:34:49 - ppt_generator - INFO - Initializing AI Service
+2025-09-23 15:34:49 - ppt_generator - INFO - Gemini configured successfully
+2025-09-23 15:34:49 - ppt_generator - INFO - Starting Flask application
+2025-09-23 15:43:07 - ppt_generator - INFO - [req_1758622387] PPT generation request started
+2025-09-23 15:43:07 - ppt_generator - INFO - Validating segment hierarchy
+2025-09-23 15:43:07 - ppt_generator - INFO - Segment hierarchy validation passed
+2025-09-23 15:43:07 - ppt_generator - INFO - [req_1758622387] Form validation passed
+2025-09-23 15:43:07 - ppt_generator - INFO - [req_1758622387] Custom KMI items provided: 3
+2025-09-23 15:43:07 - ppt_generator - INFO - [req_1758622387] Processing 20 companies
+2025-09-23 15:43:07 - ppt_generator - INFO - Parsing segment input
+2025-09-23 15:43:07 - ppt_generator - INFO - Segment input parsed successfully: 5 main categories
+2025-09-23 15:43:07 - ppt_generator - INFO - [req_1758622387] Context generated successfully
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating Table of Contents data
+2025-09-23 15:43:07 - ppt_generator - INFO - TOC data generated with 96 items
+2025-09-23 15:43:07 - ppt_generator - INFO - [req_1758622387] Starting AI content generation
+2025-09-23 15:43:07 - ppt_generator - INFO - Starting parallel AI content generation
+2025-09-23 15:43:07 - ppt_generator - INFO - Phase 1: Executing 7 tasks in parallel
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating content for: executive_summary
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating executive summary
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating content for: market_enablers
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating content for: industry_expansion
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating content for: investment_challenges
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating market enablers
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating content for: research_journals
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating content for: industry_associations
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating industry expansion
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating content for: company_info
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating investment challenges
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating research journals
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating industry associations
+2025-09-23 15:43:07 - ppt_generator - INFO - Generating company info for: Anklam Extrakt GmbH
+2025-09-23 15:43:18 - ppt_generator - INFO - Research journals generated: 5 items
+2025-09-23 15:43:18 - ppt_generator - INFO - Content generation completed for: research_journals
+2025-09-23 15:43:18 - ppt_generator - INFO - Phase 1 task completed: research_journals
+2025-09-23 15:43:24 - ppt_generator - INFO - Executive summary generated successfully
+2025-09-23 15:43:24 - ppt_generator - INFO - Content generation completed for: executive_summary
+2025-09-23 15:43:24 - ppt_generator - INFO - Phase 1 task completed: executive_summary
+2025-09-23 15:43:24 - ppt_generator - INFO - Industry associations generated: 5 items
+2025-09-23 15:43:24 - ppt_generator - INFO - Content generation completed for: industry_associations
+2025-09-23 15:43:24 - ppt_generator - INFO - Phase 1 task completed: industry_associations
+2025-09-23 15:43:47 - ppt_generator - INFO - Market enablers generated successfully
+2025-09-23 15:43:47 - ppt_generator - INFO - Content generation completed for: market_enablers
+2025-09-23 15:43:47 - ppt_generator - INFO - Phase 1 task completed: market_enablers
+2025-09-23 15:44:01 - ppt_generator - INFO - Investment challenges generated successfully
+2025-09-23 15:44:01 - ppt_generator - INFO - Content generation completed for: investment_challenges
+2025-09-23 15:44:01 - ppt_generator - INFO - Phase 1 task completed: investment_challenges
+2025-09-23 15:45:12 - ppt_generator - INFO - Company info generated successfully
+2025-09-23 15:45:12 - ppt_generator - INFO - Content generation completed for: company_info
+2025-09-23 15:45:12 - ppt_generator - INFO - Phase 1 task completed: company_info
+2025-09-23 15:45:42 - ppt_generator - INFO - Industry expansion generated successfully
+2025-09-23 15:45:42 - ppt_generator - INFO - Content generation completed for: industry_expansion
+2025-09-23 15:45:42 - ppt_generator - INFO - Phase 1 task completed: industry_expansion
+2025-09-23 15:45:42 - ppt_generator - INFO - Phase 1 completed, starting Phase 2
+2025-09-23 15:45:42 - ppt_generator - INFO - Generating content for: industry_expansion_1
+2025-09-23 15:45:42 - ppt_generator - INFO - Generating industry expansion 1 (avoiding title: Evolving regulatory and clinical acceptance of extract magistrals)
+2025-09-23 15:46:44 - ppt_generator - INFO - Industry expansion 1 generated successfully
+2025-09-23 15:46:44 - ppt_generator - INFO - Content generation completed for: industry_expansion_1
+2025-09-23 15:46:44 - ppt_generator - INFO - Parallel AI content generation completed successfully
+2025-09-23 15:46:44 - ppt_generator - INFO - [req_1758622387] AI content extracted successfully
+2025-09-23 15:46:44 - ppt_generator - INFO - [req_1758622387] Starting presentation modification
+2025-09-23 15:46:44 - ppt_generator - INFO - [req_1758622387] Loading base presentation
+2025-09-23 15:46:45 - ppt_generator - INFO - [req_1758622387] Adding taxonomy boxes
+2025-09-23 15:46:45 - ppt_generator - INFO - Adding taxonomy boxes to slide 1
+2025-09-23 15:46:45 - ppt_generator - INFO - Taxonomy boxes added successfully to slide 1
+2025-09-23 15:46:45 - ppt_generator - INFO - [req_1758622387] Performing text replacements in tables
+2025-09-23 15:46:45 - ppt_generator - INFO - Starting text replacement in tables for slides: [10, 13, 16, 17, 18, 19, 21, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35]
+2025-09-23 15:46:45 - ppt_generator - INFO - Text replacement in tables completed
+2025-09-23 15:46:45 - ppt_generator - INFO - [req_1758622387] Creating Table of Contents
+2025-09-23 15:46:45 - ppt_generator - INFO - Adding TOC to slides: [4, 5, 6, 7]
+2025-09-23 15:46:45 - ppt_generator - INFO - TOC added to slides successfully
+2025-09-23 15:46:45 - ppt_generator - INFO - [req_1758622387] Adding tables and charts
+2025-09-23 15:46:45 - ppt_generator - INFO - Creating chart with 5 series and 14 data points
+2025-09-23 15:46:45 - ppt_generator - INFO - Chart created successfully
+2025-09-23 15:46:45 - ppt_generator - INFO - Creating chart with 5 series and 14 data points
+2025-09-23 15:46:45 - ppt_generator - INFO - Chart created successfully
+2025-09-23 15:46:45 - ppt_generator - INFO - Creating chart with 5 series and 14 data points
+2025-09-23 15:46:45 - ppt_generator - INFO - Chart created successfully
+2025-09-23 15:46:45 - ppt_generator - INFO - Cleaning filename: German Extract-Based Magistrals Market
+2025-09-23 15:46:45 - ppt_generator - INFO - Cleaned filename: German Extract-Based Magistrals Market
+2025-09-23 15:46:45 - ppt_generator - INFO - [req_1758622387] Saving presentation to: generated_ppts\German Extract-Based Magistrals Market_20250923_154645.pptx
+2025-09-23 15:46:45 - ppt_generator - INFO - [req_1758622387] PPT generation completed successfully: German Extract-Based Magistrals Market_20250923_154645.pptx
