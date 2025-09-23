@@ -1140,7 +1140,8 @@ Tesla Inc.</div>
                 
                 if (response.ok) {
                     const result = await response.json();
-                    showSuccess(`/download/${result.filename}`);
+                    // UPDATED: Use the new download path structure
+                    showSuccess(`/sample/download/${result.filename}`);
                 } else {
                     const error = await response.json();
                     throw new Error(error.message || 'Report generation failed');

@@ -1571,7 +1571,7 @@ def generate_ppt():
         }), 500
 
 
-@app.route('/download')
+@app.route('/sample/download/<path:filename>')
 def download_file(filename):
     download_start_time = time.time()
     logger.info(f"Download request for file: {filename}")
