@@ -31,6 +31,7 @@ from enum import Enum
 from typing import Optional, Dict, List, Any
 import concurrent.futures
 import threading
+from pptx.util import Pt
 
 def setup_logging():
     """Setup logging configuration"""
@@ -326,7 +327,7 @@ class AIService:
         The short_description_company should be around 100 words. I want you to act as a Research Analyst and give Company Overview of "{context["company_name"]}" in around 10-11 lines (In one paragraph only) which should not talk about Headquarter Country, Establishment/Foundation Year, Number of Employees or Revenue and should not use any marketing/promotional words like, largest, prominent, diversified, recognized, among others (You can talk about its product/service related to {context["headline"]}, market presence, business strategy, recent developments, etc) like this for tone:
         Schlumberger Ltd (SLB) provides technology for reservoir characterization, production, drilling and processing to the oil and gas industry. The company supplies its products and services to the industry, from exploration through production and integrated pipeline solutions for hydrocarbon recovery. SLB's products and services include open-hole and cased-hole wireline logging; drilling services; well completion services, including well testing and artificial lift; well services such as cementing, coiled tubing, stimulations, and sand control; interpretation and consulting services; and integrated project management. The company has an operational presence in North America, Latin America, Europe and Africa, the Middle East and Asia. SLB is headquartered in Houston, Texas, the US..
 .       website should be the official website no Https ot http.
-        revenue should be in the format " X.XX billion" or " X.XX million" and should be correct 2024 data in USD only correct data must strict.
+        revenue should be in the format " X.XX billion" or " X.XX million" and should be correct 2024 data in USD only correct data must correct strict.
         ownership should be either "Public" or "Private".
         top product should be a product or service relevant to the headline market.
         description_product should be 50 words describing the top product.
@@ -339,7 +340,7 @@ class AIService:
             model="gpt-5",
             tools=[{
                 "type": "web_search_preview",
-                "search_context_size": "medium",
+                "search_context_size": "high",
             }],
             input=[
                 {"role": "system", "content": "You are a JSON generator. Always return valid JSON and nothing else."},
@@ -368,7 +369,7 @@ class AIService:
                 {
                     "role": "system",
                     "content": (
-                        "You are a JSON generator. Provide the names of research journals related to the specified market "
+                        "You are a JSON generator. Provide the names of research journals related to the specified market from website properly  "
                         "in JSON format. Only include the names as strings, no additional information "
                         "is needed. Search established, reputable journals.\n\n"
                         "Give 5 journal names.\n\n"
@@ -532,6 +533,7 @@ class TaxonomyBoxGenerator:
         self._add_list_content(tf, content)
 
     def _add_list_content(self, text_frame, content):
+
         text_frame.margin_bottom = Pt(12)
         if text_frame.paragraphs:
             text_frame.paragraphs[0].text = ""
@@ -548,6 +550,9 @@ class TaxonomyBoxGenerator:
             p = text_frame.add_paragraph() if i > 0 else text_frame.paragraphs[0]
             p.text = item
             p.alignment = PP_ALIGN.LEFT
+            
+            p.line_spacing = 1
+            p.space_after = Pt(6)  
 
             pPr = p._p.get_or_add_pPr()
             pPr.set("marL", str(int(Pt(15).emu)))
@@ -579,20 +584,6 @@ class TaxonomyBoxGenerator:
                 run.font.size = Pt(10)
                 run.font.color.rgb = self.COLORS["text_dark"]
 
-            if not pPr.find(qn("a:spcAft")):
-                spcAft = OxmlElement("a:spcAft")
-                spcVal = OxmlElement("a:spcPts")
-                spcVal.set("val", "600")
-                spcAft.append(spcVal)
-                pPr.append(spcAft)
-
-            if not pPr.find(qn("a:lnSpc")):
-                lnSpc = OxmlElement("a:lnSpc")
-                spcPts = OxmlElement("a:spcPts")
-                spcPts.set("val", "1800")
-                lnSpc.append(spcPts)
-                pPr.append(lnSpc)
-
     def add_taxonomy_boxes(self, slide_index, taxonomy_data):
         logger.info(f"Adding taxonomy boxes to slide {slide_index}")
         slide = self.prs.slides[slide_index]
@@ -608,7 +599,7 @@ class TaxonomyBoxGenerator:
         for category, hierarchy in taxonomy_data.items():
             item_count = len(hierarchy)
             box_height = max(
-                Inches(1), Inches(0.43) + (item_count * Inches(0.17) * 1.2)
+                Inches(1), Inches(0.43) + (item_count * Inches(0.22) * 1.2)
             )
             if current_row_width + box_width > available_width and current_row:
                 rows.append(current_row)
@@ -917,25 +908,30 @@ def generate_toc_data(nested_dict: Dict, headline: str, forecast_period: str, us
 
     for i, kmi_item in enumerate(all_kmi_items, start=1):
         kmi_section[f"5.{i}. {kmi_item}"] = 1
+        
+    def add_nested_items(items_dict, prefix, base_level):
+        """Recursively add nested items to TOC with proper levels"""
+        item_count = 1
+        for item_name, sub_items in items_dict.items():
+            current_key = f"{prefix}.{item_count}. {item_name}"
+            toc_mid[current_key] = base_level
+            
+            if sub_items and isinstance(sub_items, dict):
+                add_nested_items(sub_items, f"{prefix}.{item_count}", base_level + 1)
+            
+            item_count += 1
+    
     toc_mid = {}
     main_index = 6
     for type_index, (type_name, points) in enumerate(nested_dict.items(), start=main_index):
-        toc_mid[
-            f"{type_index}. {headline} Size by {type_name} (2019-2032)"
-        ] = 0
-        point_count = 1
-        for point, subpoints in points.items():
-            toc_mid[f"{type_index}.{point_count}. {point}"] = 1
-            if subpoints:
-                for sp_count, sub in enumerate(subpoints, start=1):
-                    toc_mid[f"{type_index}.{point_count}.{sp_count}. {sub}"] = 2
-            point_count += 1
+        toc_mid[f"{type_index}. {headline} Size by {type_name} (2019-2032)"] = 0
+        add_nested_items(points, str(type_index), 1)
         
 
 
     x = len(list(nested_dict.keys())) + 6
     toc_end_levels = {
-        f"{x}. Global {headline} Size by Region (2019-2032)": 0,
+        f"{x}. {headline} Size by Region (2019-2032)": 0,
         f"{x}.1. North America ({user_segment})": 1,
         f"{x}.1.1. US": 2,
         f"{x}.1.2. Canada": 2,
@@ -1093,7 +1089,7 @@ def generate_ppt():
         required_fields = [
             'headline', 'headline_2', 'historical_year', 'base_year',
             'forecast_year', 'forecast_period', 'cur', 'value_in',
-            'rev_current', 'rev_future', 'segment_input', 'companies','cagr',
+            'rev_current', 'rev_future', 'segment_input', 'companies','cagr',"sqcode"
         ]
         
         missing_fields = []
@@ -1132,6 +1128,7 @@ def generate_ppt():
         rev_future = form_data['rev_future']
         cagr = form_data.get('cagr')
         segment_input = form_data['segment_input']
+        sqcode = form_data.get('sqcode', '').strip()
         kmi_items = []
         kmi_input = form_data.get('kmi_items', '').strip()
         
@@ -1252,7 +1249,7 @@ def generate_ppt():
         slide_data = {
             0: {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} AND FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
                 "context": context,
             },
             1: {
@@ -1269,13 +1266,13 @@ def generate_ppt():
             },
             3: {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
             },
-            8: {
+            9: {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
             },
-            10: {
+            11: {
                 "org_1": industry_associations[0] if len(industry_associations) > 0 else "Global Industry Alliance",
                 "org_2": industry_associations[1] if len(industry_associations) > 1 else "International Trade Association",
                 "org_3": industry_associations[2] if len(industry_associations) > 2 else "National Business Federation",
@@ -1287,58 +1284,52 @@ def generate_ppt():
                 "paper_4": research_journals[3] if len(research_journals) > 3 else "Harvard Business Review",
                 "paper_5": research_journals[4] if len(research_journals) > 4 else "Industrial Marketing Management",
             },
-            12: {
-                "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
-            },
             13: {
+                "heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
+            },
+            14: {
                 "heading_2": f"{headline_2} SIZE, ({currency.upper()})",
                 "mpara": mpara_11,
                 "para": para_11,
                 "amount_1": rev_current,    
                 "amount_2": rev_future,
             },
-            14: {
+            15: {
                 "heading": headline_2,
                 "amount_1": f"{cur} {rev_current} {value_in.upper()} ",
                 "amount_2": f"{rev_future} {value_in.upper()} {cur}",
             },
-            15:  {
+            16:  {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
             },
-            17: {"industry_title": industry_title, "para": para_14},
-            18: {"industry_title": industry_title_2, "para": para_14_1},
+            18: {"industry_title": industry_title, "para": para_14},
+            19: {"industry_title": industry_title_2, "para": para_14_1},
 
-            19: {"industry_title": industry_title_1, "para": para_15},
-            21:  {
+            20: {"industry_title": industry_title_1, "para": para_15},
+            22:  {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
                 "default_kmi": default_kmi_bullets,
                 "user_kmi": user_kmi_bullets,
             },
-            23: {
+            24: {
                 "heading": headline_2,  
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
                 "types": s_segment,
             },
-            24: {
+            25: {
                 "heading":  headline_2,
                 "type_1": main_topic[0].upper() if main_topic else "Type 1",
                 "timeline": "2019-2032",
                 "cur": f"{cur.upper()} {value_in.upper()}",
             },
-            25: {
+            26: {
                 "heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
             },
-            26: {"heading": headline_2, "timeline": "2019-2032", "cur": f"{cur.upper()} {value_in.upper()}"},
-            27: {
-                "2_heading": headline_3.upper(),
-                "type_1": main_topic[0].upper() if main_topic else "Type 1",
-                "timeline": "2019-2032",
-                "cur": f"{cur.upper()} {value_in.upper()}",
-            },
+            27: {"heading": headline_2, "timeline": "2019-2032", "cur": f"{cur.upper()} {value_in.upper()}"},
             28: {
                 "2_heading": headline_3.upper(),
                 "type_1": main_topic[0].upper() if main_topic else "Type 1",
@@ -1346,11 +1337,17 @@ def generate_ppt():
                 "cur": f"{cur.upper()} {value_in.upper()}",
             },
             29: {
-                "2_heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
+                "2_heading": headline_3.upper(),
+                "type_1": main_topic[0].upper() if main_topic else "Type 1",
+                "timeline": "2019-2032",
+                "cur": f"{cur.upper()} {value_in.upper()}",
             },
-            30: {"heading": headline},
-            31: {
+            30: {
+                "2_heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
+            },
+            31: {"heading": headline},
+            32: {
                 "company": company_info["company_name"].upper(),
                 "e": company_info["employee_count"],
                 "h": company_info["headquarters"],
@@ -1358,11 +1355,11 @@ def generate_ppt():
                 "es": company_info["estd"],
                 "rev":company_info["revenue"],
             },
-            32: {
-                "2_heading": headline_2,
-                "timeline": f"HISTORIC YEAR {historical_year} FORECAST TO {forecast_year}",
-            },
             33: {
+                "2_heading": headline_2,
+                "timeline": f"HISTORIC YEAR {historical_year} \nFORECAST TO {forecast_year}",
+            },
+            34: {
                 "company": company_info["company_name"].upper(),
                 "e": company_info["employee_count"],
                 "ownership": company_info["ownership"],
@@ -1375,8 +1372,8 @@ def generate_ppt():
                 "geo": company_info["geographic_presence"],
                 "description": company_info["description_product"],
                 },
-            34: {"company": company_info["company_name"].upper()},
             35: {"company": company_info["company_name"].upper()},
+            36: {"company": company_info["company_name"].upper()},
         }
 
         logger.info(f"[{request_id}] Starting presentation modification")
@@ -1416,15 +1413,15 @@ def generate_ppt():
         generator.add_taxonomy_boxes(1, table_taxonomy)
 
         logger.info(f"[{request_id}] Performing text replacements in tables")
-        table_slide_indices = [10,13, 16, 17,18,19,21, 23, 24, 25, 26,27, 28,29,30,31, 32, 33,34,35]
+        table_slide_indices = [11,14, 17, 18,19,20,22, 24, 25, 26, 27,28, 29,30,31,32, 33, 34,35,36]
         replace_text_in_tables(prs, table_slide_indices, slide_data)
 
         logger.info(f"[{request_id}] Creating Table of Contents")
-        toc_slide_indices = [4, 5, 6, 7]
+        toc_slide_indices = [4, 5, 6, 7,8]
         add_toc_to_slides(prs, toc_data_levels, toc_slide_indices)
 
         logger.info(f"[{request_id}] Adding tables and charts")
-        target_slide_indices = [24, 27, 28]
+        target_slide_indices = [25, 28, 29]
         graph_table = list(nested_dict[main_topic[0]].keys()) if main_topic else []
         total_rows = len(graph_table)
         
@@ -1539,9 +1536,9 @@ def generate_ppt():
                         Inches(0.4), Inches(1.1), Inches(12.5), Inches(2.8)
                     )
 
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         clean_market_name = clean_filename(headline)
-        filename = f"{clean_market_name}_{timestamp}.pptx"
+        clean_sqcode = clean_filename(sqcode)
+        filename = f"Sample_{clean_market_name}_{clean_sqcode}_Skyquest_2025_V1.pptx"
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         
         logger.info(f"[{request_id}] Saving presentation to: {filepath}")
